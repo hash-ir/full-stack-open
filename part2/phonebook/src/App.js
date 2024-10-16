@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import contactService from './services/contacts'
+
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -13,11 +14,11 @@ const App = () => {
   // add effect hook to initialize the persons array
   const hook = () => {
     console.log('effect');
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
+    contactService
+      .getAll()
+      .then(initialContacts => {
         console.log('promise fulfilled');
-        setPersons(response.data)
+        setPersons(initialContacts)
       })
   }
   useEffect(hook, [])
@@ -25,7 +26,7 @@ const App = () => {
 
   const addName = (event) => {
     event.preventDefault()
-    const person = {
+    const personObject = {
       name: newName,
       number: newNumber,
       id: String(persons.length + 1)
@@ -39,7 +40,11 @@ const App = () => {
       }
     })
     if (!duplicate) {
-      setPersons(persons.concat(person))
+      contactService
+        .create(personObject)
+        .then(returnedContact => {
+          setPersons(persons.concat(returnedContact))
+        })
     }
     setNewName('')
     setNewNumber('')
