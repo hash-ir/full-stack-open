@@ -32,22 +32,60 @@ const App = () => {
       id: String(persons.length + 1)
     }
 
-    let duplicate = false
-    persons.forEach((item, index) => {
-      if (item.name === newName) {
+    // add new contact, update existing (number), or skip (if contact exisits)
+    const duplicate = persons.find(p => p.name === newName)
+    // name matches
+    if (duplicate) {
+      if (duplicate.number === newNumber) {
+        // alert user and skip
         alert(`${newName} is already added to phonebook`)
-        duplicate = true
+      } else {
+        // confirm number update
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+          contactService
+            .update(duplicate.id, personObject)
+            .then(returnedContact => {
+              setPersons(persons.map(person => person.id === duplicate.id ? returnedContact : person))
+            })
+            .catch(error => {
+              console.log(error);
+            })
+        }
       }
-    })
-    if (!duplicate) {
+    } else {
+      // create new contact
       contactService
         .create(personObject)
         .then(returnedContact => {
           setPersons(persons.concat(returnedContact))
         })
+        .catch(error => {
+          console.log(error);
+        })
     }
+
+    // finally, reset name and number fields
     setNewName('')
     setNewNumber('')
+  }
+
+  const removePerson = (name) => {
+    const personToRemove = persons.find(p => p.name === name)
+    if (window.confirm(`Delete ${personToRemove.name} ?`)) {
+      console.log(`${name} needs to be deleted`);
+      contactService
+        .remove(personToRemove.id)
+        .then(response => {
+          const updatedPersons = persons.filter(p => p.name !== name)
+          setPersons(updatedPersons)
+          console.log(`${name} is deleted from the phonebook`);
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    } else {
+      console.log('Nothing to do here');
+    }
   }
 
   const handleNameChange = (event) => {
@@ -71,7 +109,7 @@ const App = () => {
       <h3>Add a new</h3>
       <PersonForm addName={addName} nameProps={[newName, handleNameChange]} numberProps={[newNumber, handleNumberChange]} />
       <h3>Numbers</h3>
-      <Persons persons={personsToShow} />
+      <Persons persons={personsToShow} removePerson={removePerson}/>
     </div>
   )
 }
