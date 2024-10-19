@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import contactService from './services/contacts'
+import './index.css'
 
 
 const App = () => {
@@ -10,7 +12,9 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [search, newSearch] = useState('')
-
+  const [message, setMessage] = useState(null)
+  const [messageType, setMessageType] = useState('success')
+  
   // add effect hook to initialize the persons array
   const hook = () => {
     console.log('effect');
@@ -29,7 +33,6 @@ const App = () => {
     const personObject = {
       name: newName,
       number: newNumber,
-      id: String(persons.length + 1)
     }
 
     // add new contact, update existing (number), or skip (if contact exisits)
@@ -45,10 +48,20 @@ const App = () => {
           contactService
             .update(duplicate.id, personObject)
             .then(returnedContact => {
-              setPersons(persons.map(person => person.id === duplicate.id ? returnedContact : person))
+              setPersons(persons.map(person => person.name === duplicate.name ? returnedContact : person))
+              setMessage(`Number changed for ${newName}`)
+              setMessageType('success')
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
             })
             .catch(error => {
               console.log(error);
+              setMessage(`Information of ${newName} has already been removed from server`)
+              setMessageType('error')
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
             })
         }
       }
@@ -57,7 +70,13 @@ const App = () => {
       contactService
         .create(personObject)
         .then(returnedContact => {
+          console.log(returnedContact);
           setPersons(persons.concat(returnedContact))
+          setMessage(`Added ${personObject.name}`)
+          setMessageType('success')
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
         .catch(error => {
           console.log(error);
@@ -78,10 +97,19 @@ const App = () => {
         .then(response => {
           const updatedPersons = persons.filter(p => p.name !== name)
           setPersons(updatedPersons)
-          console.log(`${name} is deleted from the phonebook`);
+          setMessage(`Deleted ${personToRemove.name}`)
+          setMessageType('success')
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
         .catch(error => {
           console.log(error);
+          setMessage(`Information of ${personToRemove.name} has already been removed from server`)
+          setMessageType('error')
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
         })
     } else {
       console.log('Nothing to do here');
@@ -105,6 +133,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message} type={messageType}/>
       <Filter search={search} handleNameSearch={handleNameSearch} />
       <h3>Add a new</h3>
       <PersonForm addName={addName} nameProps={[newName, handleNameChange]} numberProps={[newNumber, handleNumberChange]} />
