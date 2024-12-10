@@ -1,6 +1,22 @@
-const { test, describe } = require('node:test')
+const { test, describe, beforeEach, after } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
+const helper = require('./test_helper')
+const supertest = require('supertest')
+const app = require('../app')
+const Blog = require('../models/blog')
+const { default: mongoose } = require('mongoose')
+
+const api = supertest(app)
+
+beforeEach(async () => {
+    await Blog.deleteMany({})
+    
+    const blogObjects = helper.initialBlogs
+        .map(blog => new Blog(blog))
+    const promiseArray = blogObjects.map(blog => blog.save())
+    await Promise.all(promiseArray)
+})
 
 test('dummy returns one', () => {
   const blogs = []
@@ -155,4 +171,23 @@ describe('favorite blog', () => {
         const result = listHelper.favoriteBlog(listWithNoBlog)
         assert.equal(result, null)
     })
+})
+
+test('blogs are returned in correct amount as JSON', async () => {
+    await api
+        .get('/api/blogs')
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+})
+
+test('unique identifier in blog object is named "id"', async () => {
+    const blogsAtEnd = await helper.blogsInDb()
+    assert(Object.hasOwn(blogsAtEnd[0], "id"))
+})
+
+after(async () => {
+    await mongoose.connection.close()
 })
