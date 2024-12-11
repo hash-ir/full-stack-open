@@ -174,6 +174,7 @@ describe('favorite blog', () => {
 })
 
 test('blogs are returned in correct amount as JSON', async () => {
+    console.log('print');
     await api
         .get('/api/blogs')
         .expect(200)
@@ -186,6 +187,64 @@ test('blogs are returned in correct amount as JSON', async () => {
 test('unique identifier in blog object is named "id"', async () => {
     const blogsAtEnd = await helper.blogsInDb()
     assert(Object.hasOwn(blogsAtEnd[0], "id"))
+})
+
+test('a valid blog post can be added', async () => {
+    const testTitle = 'This is a test blog that will be added'
+    const newBlog = {
+        title: testTitle,
+        author: 'Unit Tester',
+        url: 'https://example.com/@unit.tester/test-blog',
+        likes: 101
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+
+    const contents = blogsAtEnd.map(b => b.title)
+    assert(contents.includes(testTitle))
+})
+
+test('if the "likes" property is missing, it will default to value 0', async () => {
+    const testTitle = 'Oops I did it again!'
+    const newBlogWithoutLikes = {
+        title: testTitle,
+        author: 'Britney Spears',
+        url: 'https://example.com/@spearsb/oopsy-daisy'
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(newBlogWithoutLikes)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    // verify that the blog is added
+    assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
+
+    // check that the value of 'likes' is 0 in case it is missing
+    const newlyAddedBlog = blogsAtEnd.find(b => b.title === testTitle)
+    assert.strictEqual(newlyAddedBlog.likes, 0)
+
+})
+
+test('if the "title" or "url" properties are missing, "400: Bad Request" will be returned', async () => {
+    const badBlog = {
+        author: 'No Name',
+    }
+
+    await api
+        .post('/api/blogs')
+        .send(badBlog)
+        .expect(400)
+        .expect(response => response.res.statusMessage === 'Bad Request')
 })
 
 after(async () => {
