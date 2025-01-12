@@ -10,7 +10,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', async (request, response) => {
     const body = request.body
-    
+
     if (!(body.title || body.url)) {
         response.status(400).send()
     }
@@ -20,12 +20,16 @@ blogsRouter.post('/', async (request, response) => {
     const blog = new Blog({
         title: body.title,
         url: body.url,
+        author: body.author,
         likes: body.likes === undefined ? 0 : body.likes,
         user: user.id
     })
 
     const savedBlog = await blog.save()
+
     user.blogs = user.blogs.concat(savedBlog._id)
+    await user.save()
+
     response.status(201).json(savedBlog)
 })
 
@@ -42,7 +46,7 @@ blogsRouter.put('/:id', async (request, response) => {
         }
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, {$set: update}, { new: true })
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, { $set: update }, { new: true })
     response.status(201).json(updatedBlog)
 })
 
