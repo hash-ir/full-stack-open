@@ -1,4 +1,5 @@
 const blogsRouter = require('express').Router()
+const blog = require('../models/blog')
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
@@ -40,8 +41,24 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndDelete(request.params.id)
-    response.status(204).end()
+    if (!request.token) {
+        return response.status(401).json({ error: "delete attempted without user token" })
+    }
+
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    if (!decodedToken.id) {
+        return response.status(401).json({ error: "invalid user token for delete operation"})
+    }
+    const userid = decodedToken.id
+
+    const blogToBeDeleted = await Blog.findById(request.params.id)
+
+    if (blogToBeDeleted.user.toString() === userid.toString()) {
+        await Blog.findByIdAndDelete(blogToBeDeleted.id)
+        response.status(204).end()
+    } else {
+        return response.status(401).json({ error: `Delete aborted. Blog id '${blogToBeDeleted.id}' does not have user id '${userid}'` })
+    }
 })
 
 blogsRouter.put('/:id', async (request, response) => {
