@@ -1,11 +1,12 @@
-const { test, describe, beforeEach, after } = require('node:test')
+const { test, describe, before, beforeEach, after } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 const helper = require('./test_helper')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
-const { default: mongoose } = require('mongoose')
+const User = require('../models/user')
+const mongoose = require('mongoose')
 
 const api = supertest(app)
 
@@ -190,6 +191,30 @@ describe('when there are initially some blogs saved', () => {
     })
 
     describe('addition of a new blog', () => {
+        let token;
+
+        before(async () => {
+            // Teardown: clean up the test user database
+            await User.deleteMany({})
+
+            // Setup: create a test user and get authentication token
+            const testUser = {
+                username: 'testuser',
+                name: 'Test User',
+                password: 'testpassword'
+            }
+
+            await api
+                .post('/api/users')
+                .send(testUser)
+
+            const loginResponse = await api
+                .post('/api/login')
+                .send(testUser)
+
+            token = loginResponse.body.token
+        })
+
         test('a valid blog post can be added', async () => {
             const testTitle = 'This is a test blog that will be added'
             const newBlog = {
@@ -198,9 +223,10 @@ describe('when there are initially some blogs saved', () => {
                 url: 'https://example.com/@unit.tester/test-blog',
                 likes: 101
             }
-        
+
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlog)
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
@@ -210,6 +236,25 @@ describe('when there are initially some blogs saved', () => {
         
             const contents = blogsAtEnd.map(b => b.title)
             assert(contents.includes(testTitle))
+        })
+
+        test('adding a blog fails if token is not provided', async () => {
+            const testTitle = 'This is a test blog that will not be added'
+            const newBlog = {
+                title: testTitle,
+                author: 'Good Tester',
+                url: 'https://example.com/@unit.tester/test-blog-2',
+                likes: 0
+            }
+
+            await api
+                .post('/api/blogs')
+                .send(newBlog)
+                .expect(401)
+                .expect('Content-Type', /application\/json/)
+
+            const blogsAtEnd = await helper.blogsInDb()
+            assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
         })
         
         test('if the "likes" property is missing, it will default to value 0', async () => {
@@ -222,6 +267,7 @@ describe('when there are initially some blogs saved', () => {
         
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(newBlogWithoutLikes)
                 .expect(201)
                 .expect('Content-Type', /application\/json/)
@@ -243,6 +289,7 @@ describe('when there are initially some blogs saved', () => {
         
             await api
                 .post('/api/blogs')
+                .set('Authorization', `Bearer ${token}`)
                 .send(badBlog)
                 .expect(400)
                 .expect(response => response.res.statusMessage === 'Bad Request')
@@ -250,12 +297,37 @@ describe('when there are initially some blogs saved', () => {
     })
 
     describe('deletion of a blog', () => {
+        let token;
+
+        before(async () => {
+            // Teardown: clean up the test user database
+            await User.deleteMany({})
+
+            // Setup: create a test user and get authentication token
+            const testUser = {
+                username: 'testuser',
+                name: 'Test User',
+                password: 'testpassword'
+            }
+
+            await api
+                .post('/api/users')
+                .send(testUser)
+
+            const loginResponse = await api
+                .post('/api/login')
+                .send(testUser)
+
+            token = loginResponse.body.token
+        })
+
         test('succeeds with status code 204 if id is valid', async () => {
             const blogsAtStart = await helper.blogsInDb()
             const blogToDelete = blogsAtStart[0]
 
             await api
                 .delete(`/api/blogs/${blogToDelete.id}`)
+                .set('Authorization', `Bearer ${token}`)
                 .expect(204)
 
             const blogsAtEnd = await helper.blogsInDb()
