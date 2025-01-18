@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import countryService from './services/countries'
 import Country from './components/Country'
 
-const Display = ({ info, infoType }) => {
+const Display = ({ info, infoType, handleShowClick }) => {
   if (info === null) {
     return null
   }
@@ -15,6 +15,7 @@ const Display = ({ info, infoType }) => {
         {info.map(countryInfo => 
           <div key={countryInfo.name.common}>
             {countryInfo.name.common}
+            <button onClick={() => handleShowClick(countryInfo)}>show</button>
           </div>
         )}
       </div>
@@ -70,6 +71,12 @@ const App = () => {
     console.log(event.target.value)
   }
 
+  const handleShowClick = (country) => {
+    console.log(country)
+    setInfo(country)
+    setInfoType('one')  // set 'infoType' to "one" to display the selected country
+  }
+
   return (
     <div>
       find countries 
@@ -80,6 +87,7 @@ const App = () => {
       <Display 
         info={info} 
         infoType={infoType} 
+        handleShowClick={handleShowClick}
       />
     </div>
   )
