@@ -12,6 +12,10 @@ const Country = ({ info }) => {
                 ))}
             </ul>
             <img src={info.flags['svg']} alt={info.flags['alt']} width={150}/>
+            <h2>Weather in {info.name.common}</h2>
+            <p>temperature {info.temperature} Celsius</p>
+            <img src={info.icon} />
+            <p>wind {info.wind} m/s</p>
         </div>
     )
 }

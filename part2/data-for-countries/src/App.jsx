@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import countryService from './services/countries'
+import weatherService from './services/weather'
 import Country from './components/Country'
 
 const Display = ({ info, infoType, handleShowClick }) => {
@@ -59,22 +60,38 @@ const App = () => {
         setInfo(countriesToShow)
         setInfoType('many')
       } else if (countriesToShow.length === 1) {
-        console.log(countriesToShow)
-        setInfo(countriesToShow[0])
-        setInfoType('one')
+        const countryInfo = countriesToShow[0]
+        setWeatherInfo(countryInfo)
       }
     }
   }, [search, allCountries])
 
   const handleCountrySearch = (event) => {
     newSearch(event.target.value)
-    console.log(event.target.value)
   }
 
-  const handleShowClick = (country) => {
-    console.log(country)
-    setInfo(country)
-    setInfoType('one')  // set 'infoType' to "one" to display the selected country
+  const handleShowClick = (countryInfo) => {
+    setWeatherInfo(countryInfo)
+  }
+
+  const setWeatherInfo = (countryInfo) => {
+    const capitalCity = countryInfo.capital
+
+    // weather of capital city
+    weatherService
+      .getWeatherByName(capitalCity)
+      .then(response => {
+        const icon = weatherService.getWeatherIcon(response.weather[0].icon)
+        setInfo({
+          ...countryInfo,
+          temperature: response.main.temp,
+          wind: response.wind.speed,
+          icon: icon
+        })
+        // set 'infoType' to "one" to display the selected country
+        // this should be inside the .then to avoid race condition
+        setInfoType('one')  
+      })
   }
 
   return (
