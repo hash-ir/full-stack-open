@@ -8,7 +8,7 @@ const getWeatherByName = (name) => {
     return request.then(response => response.data)
 }
 
-const getWeatherByCoords = ({ lat, lon }) => {
+const getWeatherByCoords = (lat, lon) => {
     const request = axios.get(`${baseUrl}?lat=${lat}&lon=${lon}&appid=${api_key}`)
     return request.then(response => response.data)
 }

@@ -57,7 +57,7 @@ const App = () => {
   const setWeatherInfo = (countryInfo) => {
     const capitalCity = countryInfo.capital
 
-    // weather of capital city
+    // weather of capital city by name
     weatherService
       .getWeatherByName(capitalCity)
       .then(response => {
@@ -71,6 +71,25 @@ const App = () => {
         // set 'infoType' to "one" to display the selected country
         // this should be inside the .then to avoid race condition
         setInfoType('one')
+      })
+      .catch(error => {
+        console.error(`Failed to fetch weather of ${capitalCity} by name, using coordinates:`)
+
+        const latlng = countryInfo.capitalInfo.latlng
+        // weather of capital city by geocoordinates
+        weatherService
+          .getWeatherByCoords(latlng[0], latlng[1])
+          .then(response => {
+            const icon = weatherService.getWeatherIcon(response.weather[0].icon)
+            setInfo({
+              ...countryInfo,
+              temperature: response.main.temp,
+              wind: response.wind.speed,
+              icon: icon
+            })
+            // this should be inside the .then to avoid race condition
+            setInfoType('one')
+          })
       })
   }
 
