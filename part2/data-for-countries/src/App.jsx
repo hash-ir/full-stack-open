@@ -1,48 +1,28 @@
 import { useState, useEffect } from 'react'
 import countryService from './services/countries'
 import weatherService from './services/weather'
-import Country from './components/Country'
-
-const Display = ({ info, infoType, handleShowClick }) => {
-  if (info === null) {
-    return null
-  }
-
-  if (infoType === 'tooMany') {
-    return <div>{info}</div>
-  } else if (infoType === 'many') {
-    return (
-      <div>
-        {info.map(countryInfo => 
-          <div key={countryInfo.name.common}>
-            {countryInfo.name.common}
-            <button onClick={() => handleShowClick(countryInfo)}>show</button>
-          </div>
-        )}
-      </div>
-    )
-  } else {
-    return (
-      <Country info={info} />
-    )
-  }
-}
+import Display from './components/Display'
 
 const App = () => {
   const [allCountries, setAllCountries] = useState([])
-  const [search, newSearch] = useState('')
+  const [search, setSearch] = useState('')
   const [info, setInfo] = useState(null)
   const [infoType, setInfoType] = useState(null)
 
+  // run only once to fetch data from all countries
   useEffect(() => {
     countryService
-    .getAllCountries()
-    .then(allCountries => {
-      console.log('promise fulfilled')
-      setAllCountries(allCountries)
-    })
+      .getAllCountries()
+      .then(allCountries => {
+        console.log('promise fulfilled')
+        setAllCountries(allCountries)
+      })
+      .catch(error => {
+        console.error('Error fetching country data:', error)
+      })
   }, [])
 
+  // run whenever the 'search' or 'allCountries' data is modified
   useEffect(() => {
     if (search === '') {
       setInfo(null)
@@ -67,7 +47,7 @@ const App = () => {
   }, [search, allCountries])
 
   const handleCountrySearch = (event) => {
-    newSearch(event.target.value)
+    setSearch(event.target.value)
   }
 
   const handleShowClick = (countryInfo) => {
@@ -90,22 +70,15 @@ const App = () => {
         })
         // set 'infoType' to "one" to display the selected country
         // this should be inside the .then to avoid race condition
-        setInfoType('one')  
+        setInfoType('one')
       })
   }
 
   return (
     <div>
-      find countries 
-      <input 
-        value={search}
-        onChange={handleCountrySearch}
-      />
-      <Display 
-        info={info} 
-        infoType={infoType} 
-        handleShowClick={handleShowClick}
-      />
+      find countries
+      <input value={search} onChange={handleCountrySearch} />
+      <Display info={info} infoType={infoType} handleShowClick={handleShowClick} />
     </div>
   )
 }
