@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import Blogs from './components/Blogs'
 import Login from './components/Login'
+import Create from './components/Create'
 import blogService from './services/blogs'
 import loginService from './services/login'
 
@@ -9,6 +10,11 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
+  const [newBlog, setNewBlog] = useState({
+    title: '',
+    author: '',
+    url: ''
+  })
 
   useEffect(() => {
     const loggedUserJson = window.localStorage.getItem('loggedUser')
@@ -46,15 +52,30 @@ const App = () => {
     }
   }
 
+  const handleCreateBlog = async (event) => {
+    // event.preventDefault()
+    try {
+      blogService.setToken(user.token)
+      blogService.create(newBlog)
+      blogService.getAll().then(blogs => 
+        setBlogs(blogs)
+      )
+    } catch (error) {
+      console.error('Blog could not be added:', error.response ? error.response.data : error.message)
+    }
+    
+  }
+
   return (
     <div>
-      {user 
-        ? Blogs(user.name, blogs, handleLogout)
-        : Login(
-          {username, password}, 
-          {setUsername, setPassword},
-          handleLogin
-        )
+      {user === null ?
+        Login({username, password}, {setUsername, setPassword}, handleLogin) :
+        <div>
+          <h2>blogs</h2>
+          <p>{user.username} logged in<button onClick={handleLogout}>logout</button></p>
+          {Create(newBlog, setNewBlog, handleCreateBlog)}
+          {Blogs(user.name, blogs, handleLogout)}
+        </div> 
       }
     </div>
   )
