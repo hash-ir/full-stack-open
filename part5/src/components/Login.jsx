@@ -1,9 +1,8 @@
-const Login = (credentials, setCredentials, handleLogin) => {
+const Login = ({ credentials, setCredentials, handleLogin} ) => {
     const { username, password } = credentials
     const { setUsername, setPassword } = setCredentials
     return (
         <div>
-            <h2>log in to application</h2>
             <form onSubmit={handleLogin}>
                 <div>
                 username

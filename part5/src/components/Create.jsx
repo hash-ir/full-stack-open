@@ -1,6 +1,5 @@
-const Create = (newBlog, setNewBlog, handleCreateBlog) => {
+const Create = ({ newBlog, setNewBlog, handleCreateBlog }) => {
     const { title, author, url } = newBlog
-    // const { setTitle, setAuthor, setUrl} = addNewBlog
     return (
         <div>
             <form onSubmit={handleCreateBlog}>
@@ -15,7 +14,8 @@ const Create = (newBlog, setNewBlog, handleCreateBlog) => {
                             setNewBlog({
                                 ...newBlog, 
                                 title: target.value
-                            })}
+                            })
+                        }
                     />
                 </div>
                 <div>
@@ -28,7 +28,8 @@ const Create = (newBlog, setNewBlog, handleCreateBlog) => {
                             setNewBlog({
                                 ...newBlog,
                                 author: target.value
-                            })}
+                            })
+                        }
                     />
                 </div>
                 <div>
@@ -41,7 +42,8 @@ const Create = (newBlog, setNewBlog, handleCreateBlog) => {
                             setNewBlog({
                                 ...newBlog,
                                 url: target.value
-                            })}
+                            })
+                        }
                     />
                 </div>
                 <button type="submit">create</button>
