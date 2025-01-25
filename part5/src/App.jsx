@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blogs from './components/Blogs'
 import Login from './components/Login'
 import Create from './components/Create'
+import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
@@ -19,6 +20,8 @@ const App = () => {
   })
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('success')
+
+  const blogFormRef = useRef()
 
   useEffect(() => {
     const loggedUserJson = window.localStorage.getItem('loggedUser')
@@ -75,6 +78,7 @@ const App = () => {
   const handleCreateBlog = async (event) => {
     event.preventDefault()
     try {
+      blogFormRef.current.toggleVisibility()
       blogService.setToken(user.token)
       blogService.create(newBlog)
       blogService.getAll().then(blogs => 
@@ -118,11 +122,13 @@ const App = () => {
       <p>{user.username} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
-      <Create 
-        newBlog={newBlog} 
-        setNewBlog={setNewBlog} 
-        handleCreateBlog={handleCreateBlog}
-      />
+      <Togglable buttonLabel='new note' ref={blogFormRef}>
+        <Create 
+          newBlog={newBlog} 
+          setNewBlog={setNewBlog} 
+          handleCreateBlog={handleCreateBlog}
+        />
+      </Togglable>
       <Blogs blogs={blogs} />
     </div> 
   )
