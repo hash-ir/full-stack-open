@@ -13,11 +13,6 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: ''
-  })
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('success')
 
@@ -78,16 +73,15 @@ const App = () => {
     }
   }
 
-  const handleCreateBlog = async (event) => {
-    event.preventDefault()
+  const addBlog = async (blogObject) => {
     try {
       blogFormRef.current.toggleVisibility()
       blogService.setToken(user.token)
-      const returnedBlog = await blogService.create(newBlog)
+      const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
       
       setNotification(
-        `a new blog ${newBlog.title} by ${newBlog.author} added`,
+        `a new blog ${blogObject.title} by ${blogObject.author} added`,
         'success'
       )
     } catch (error) {
@@ -125,11 +119,7 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </p>
       <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <BlogForm 
-          newBlog={newBlog} 
-          setNewBlog={setNewBlog} 
-          handleCreateBlog={handleCreateBlog}
-        />
+        <BlogForm createBlog={addBlog}/>
       </Togglable>
       <Blogs blogs={blogs} />
     </div> 
