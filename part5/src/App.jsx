@@ -83,10 +83,9 @@ const App = () => {
     try {
       blogFormRef.current.toggleVisibility()
       blogService.setToken(user.token)
-      blogService.create(newBlog)
-      blogService.getAll().then(blogs => 
-        setBlogs(blogs)
-      )
+      const returnedBlog = await blogService.create(newBlog)
+      setBlogs(blogs.concat(returnedBlog))
+      
       setNotification(
         `a new blog ${newBlog.title} by ${newBlog.author} added`,
         'success'
