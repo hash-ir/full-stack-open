@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import Blogs from './components/Blogs'
-import Login from './components/Login'
-import Create from './components/Create'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
 import Togglable from './components/Togglable'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -21,6 +21,7 @@ const App = () => {
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('success')
 
+  // control BlogForm component visibility from outside
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const App = () => {
     try {
       const user = await loginService.login({username, password})
       setUser(user)
+      // store in browser's local storage
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       setUsername('')
       setPassword('')
@@ -60,6 +62,7 @@ const App = () => {
     }
   }
 
+
   const handleLogout = async (event) => {
     event.preventDefault()
     const loggedUserJson = window.localStorage.getItem('loggedUser')
@@ -70,7 +73,7 @@ const App = () => {
         'success'
       )
       setUser(null)
-    } else {
+    } else { // is this really needed?
       console.error(`${user.username} is not logged in`)
     }
   }
@@ -106,7 +109,7 @@ const App = () => {
       <div>
         <h2>log in to application</h2>
         <Notification message={message} messageType={messageType} />
-        <Login 
+        <LoginForm 
           credentials={{username, password}} 
           setCredentials={{setUsername, setPassword}} 
           handleLogin={handleLogin} 
@@ -123,7 +126,7 @@ const App = () => {
         <button onClick={handleLogout}>logout</button>
       </p>
       <Togglable buttonLabel='new note' ref={blogFormRef}>
-        <Create 
+        <BlogForm 
           newBlog={newBlog} 
           setNewBlog={setNewBlog} 
           handleCreateBlog={handleCreateBlog}

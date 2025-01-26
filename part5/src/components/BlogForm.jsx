@@ -1,4 +1,4 @@
-const Create = ({ newBlog, setNewBlog, handleCreateBlog }) => {
+const BlogForm = ({ newBlog, setNewBlog, handleCreateBlog }) => {
     const { title, author, url } = newBlog
     return (
         <div>
@@ -52,4 +52,4 @@ const Create = ({ newBlog, setNewBlog, handleCreateBlog }) => {
     )
 }
 
-export default Create
+export default BlogForm

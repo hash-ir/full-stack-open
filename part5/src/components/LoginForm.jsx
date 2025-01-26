@@ -1,4 +1,4 @@
-const Login = ({ credentials, setCredentials, handleLogin} ) => {
+const LoginForm = ({ credentials, setCredentials, handleLogin} ) => {
     const { username, password } = credentials
     const { setUsername, setPassword } = setCredentials
     return (
@@ -28,4 +28,4 @@ const Login = ({ credentials, setCredentials, handleLogin} ) => {
     )
 }
 
-export default Login
+export default LoginForm
