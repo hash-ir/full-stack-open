@@ -1,7 +1,10 @@
 import { useState } from "react"
+import blogService from '../services/blogs'
 
-const Blog = ({ blog }) => {
+const Blog = ({ blog, updateBlog }) => {
   const [viewDetails, setViewDetails] = useState(false)
+  // synchronize blog state as the 'like' button is pressed 
+  const [localBlog, setLocalBlog] = useState(blog)
 
   const blogStyle = {
     paddingTop: 10,
@@ -13,16 +16,39 @@ const Blog = ({ blog }) => {
 
   const buttonLabel = viewDetails ? 'hide' : 'view'
 
+  /* this works but if the like button is pressed too fast, the update
+  is not equal to the number of times the button is pressed
+  TODO: implement a fix! */
+  const increaseLikes = async () => {
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+      /* this avoids violating the schema and using `$set` update
+      method of mongodb correctly */
+      user: blog.user.id 
+    }
+
+    const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog)
+    // required to update the likes displayed
+    setLocalBlog(returnedBlog)
+
+    /* signal to parent to update the blogs list (which will include
+    the new updates) */
+    if (updateBlog) {
+      await updateBlog()
+    }
+  }
+
   return (
     <div style={blogStyle}>
-      {blog.title}
+      {localBlog.title}
       <button onClick={() => setViewDetails(!viewDetails)}>{buttonLabel}</button>
       {
         viewDetails && 
         <div>
-          {blog.url} <br />
-          {blog.likes} <button>like</button> <br />
-          {blog.author}
+          {localBlog.url} <br />
+          {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
+          {localBlog.author}
         </div>
       }
     </div>  

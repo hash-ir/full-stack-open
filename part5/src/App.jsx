@@ -94,7 +94,13 @@ const App = () => {
       )
       console.error('Blog could not be added:', errorMessage)
     }
-    
+  }
+
+  /* re-render the component when a blog is updated
+  e.g., by clicking the 'like' button */
+  const updateBlog = async () => {
+    const blogs = await blogService.getAll()
+    setBlogs(blogs)
   }
 
   if (user === null) {
@@ -115,13 +121,13 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       <Notification message={message} messageType={messageType} />
-      <p>{user.username} logged in
+      <p>{user.name} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
       <Togglable buttonLabel='create new blog' ref={blogFormRef}>
         <BlogForm createBlog={addBlog}/>
       </Togglable>
-      <Blogs blogs={blogs} />
+      <Blogs blogs={blogs} updateBlog={updateBlog}/>
     </div> 
   )
 }
