@@ -1,6 +1,6 @@
 import Blog from "./Blog"
 
-const Blogs = ({ blogs, updateBlog }) => {
+const Blogs = ({ blogs, updateBlogs, removeBlog, loggedUser }) => {
     return (
         <div>
             {blogs.map(blog =>
@@ -8,7 +8,9 @@ const Blogs = ({ blogs, updateBlog }) => {
                     key={blog.id} 
                     blog={blog}
                     // synchronize local blog updates with parent 
-                    updateBlog={updateBlog}
+                    updateBlogs={updateBlogs}
+                    removeBlog={removeBlog}
+                    loggedUser={loggedUser}
                 />
             )}
         </div>

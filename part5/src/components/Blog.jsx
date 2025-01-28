@@ -1,7 +1,7 @@
 import { useState } from "react"
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, updateBlog }) => {
+const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
   const [viewDetails, setViewDetails] = useState(false)
   // synchronize blog state as the 'like' button is pressed 
   const [localBlog, setLocalBlog] = useState(blog)
@@ -34,8 +34,15 @@ const Blog = ({ blog, updateBlog }) => {
 
     /* signal to parent to update the blogs list (which will include
     the new updates) */
-    if (updateBlog) {
-      await updateBlog()
+    if (updateBlogs) {
+      await updateBlogs()
+    }
+  }
+
+  const remove = (event) => {
+    event.preventDefault()
+    if (window.confirm(`Remove blog ${localBlog.title} by ${localBlog.author}?`)) {
+      removeBlog(localBlog.id)
     }
   }
 
@@ -48,7 +55,12 @@ const Blog = ({ blog, updateBlog }) => {
         <div>
           {localBlog.url} <br />
           {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
-          {localBlog.author}
+          {localBlog.author} <br />
+          {
+            localBlog.user 
+            && localBlog.user.username === loggedUser.username 
+            && <button onClick={remove}>remove</button>
+          }
         </div>
       }
     </div>  

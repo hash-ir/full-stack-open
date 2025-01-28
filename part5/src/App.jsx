@@ -70,7 +70,8 @@ const App = () => {
         'success'
       )
       setUser(null)
-    } else { // is this really needed?
+      // is `else` really needed?
+    } else {
       console.error(`${user.username} is not logged in`)
     }
   }
@@ -78,6 +79,7 @@ const App = () => {
   const addBlog = async (blogObject) => {
     try {
       blogFormRef.current.toggleVisibility()
+      // only authenticated users can add blogs
       blogService.setToken(user.token)
       const returnedBlog = await blogService.create(blogObject)
       setBlogs(blogs.concat(returnedBlog))
@@ -100,9 +102,24 @@ const App = () => {
 
   /* re-render the component when a blog is updated
   e.g., by clicking the 'like' button */
-  const updateBlog = async () => {
+  const updateBlogList = async () => {
     const blogs = await blogService.getAll()
     setBlogs(blogs.sort((a, b) => b.likes - a.likes ))
+  }
+
+  const removeBlog = async (id) => {
+    try {
+      // only authenticated users can remove blogs
+      blogService.setToken(user.token)
+      await blogService.remove(id)
+      updateBlogList()
+    } catch (error) {
+      const errorMessage = error.response 
+        ? error.response.data 
+        : error.message
+
+      console.error('Blog could not be added:', errorMessage)
+    }
   }
 
   if (user === null) {
@@ -129,7 +146,12 @@ const App = () => {
       <Togglable buttonLabel='create new blog' ref={blogFormRef}>
         <BlogForm createBlog={addBlog}/>
       </Togglable>
-      <Blogs blogs={blogs} updateBlog={updateBlog}/>
+      <Blogs 
+        blogs={blogs} 
+        updateBlogs={updateBlogList} 
+        removeBlog={removeBlog} 
+        loggedUser={user}
+      />
     </div> 
   )
 }
