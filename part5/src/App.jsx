@@ -26,8 +26,10 @@ const App = () => {
       setUser(user)
     }
 
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
+    blogService
+      .getAll()
+      .then(blogs => 
+        setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
     )  
   }, [])
 
@@ -100,7 +102,7 @@ const App = () => {
   e.g., by clicking the 'like' button */
   const updateBlog = async () => {
     const blogs = await blogService.getAll()
-    setBlogs(blogs)
+    setBlogs(blogs.sort((a, b) => b.likes - a.likes ))
   }
 
   if (user === null) {
