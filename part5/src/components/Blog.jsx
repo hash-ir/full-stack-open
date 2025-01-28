@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState } from 'react'
 import blogService from '../services/blogs'
+import PropTypes from 'prop-types'
 
 const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
   const [viewDetails, setViewDetails] = useState(false)
-  // synchronize blog state as the 'like' button is pressed 
+  // synchronize blog state as the 'like' button is pressed
   const [localBlog, setLocalBlog] = useState(blog)
 
   const blogStyle = {
@@ -25,7 +26,7 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
       likes: blog.likes + 1,
       /* this avoids violating the schema and using `$set` update
       method of mongodb correctly */
-      user: blog.user.id 
+      user: blog.user.id
     }
 
     const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog)
@@ -51,20 +52,31 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
       {localBlog.title}
       <button onClick={() => setViewDetails(!viewDetails)}>{buttonLabel}</button>
       {
-        viewDetails && 
+        viewDetails &&
         <div>
           {localBlog.url} <br />
           {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
           {localBlog.author} <br />
           {
-            localBlog.user 
-            && localBlog.user.username === loggedUser.username 
+            /* this does not work when a new blog is added by the
+            logged user (without reloading)
+            TODO: toggle visibility of the 'remove' button by using
+            a state like for `viewDetails` */
+            localBlog.user
+            && localBlog.user.username === loggedUser.username
             && <button onClick={remove}>remove</button>
           }
         </div>
       }
-    </div>  
+    </div>
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  updateBlogs: PropTypes.func.isRequired,
+  removeBlog: PropTypes.func.isRequired,
+  loggedUser: PropTypes.object.isRequired
 }
 
 export default Blog

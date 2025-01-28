@@ -33,10 +33,10 @@ const remove = async (id) => {
   return response
 }
 
-export default { 
-  getAll, 
-  create, 
-  setToken, 
+export default {
+  getAll,
+  create,
+  setToken,
   updateLikes,
-  remove 
+  remove
 }

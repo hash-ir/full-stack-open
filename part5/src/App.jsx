@@ -28,9 +28,9 @@ const App = () => {
 
     blogService
       .getAll()
-      .then(blogs => 
+      .then(blogs =>
         setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
-    )  
+      )
   }, [])
 
   const setNotification = (message, messageType) => {
@@ -44,15 +44,15 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
       setUser(user)
       // store in browser's local storage
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
       setUsername('')
       setPassword('')
     } catch (error) {
-      const errorMessage = error.response 
-        ? error.response.data 
+      const errorMessage = error.response
+        ? error.response.data
         : error.message
       setNotification(errorMessage['error'], 'error')
       console.error('Login failed:', errorMessage)
@@ -82,15 +82,18 @@ const App = () => {
       // only authenticated users can add blogs
       blogService.setToken(user.token)
       const returnedBlog = await blogService.create(blogObject)
+      /* no need to call `updateBlogList` here since 'likes' is not
+      used as an input (default: 0) and blog is displayed at the
+      bottom of the list -> in agreement with the sorting */
       setBlogs(blogs.concat(returnedBlog))
-      
+
       setNotification(
         `a new blog ${blogObject.title} by ${blogObject.author} added`,
         'success'
       )
     } catch (error) {
-      const errorMessage = error.response 
-        ? error.response.data 
+      const errorMessage = error.response
+        ? error.response.data
         : error.message
       setNotification(
         errorMessage['error'],
@@ -114,8 +117,8 @@ const App = () => {
       await blogService.remove(id)
       updateBlogList()
     } catch (error) {
-      const errorMessage = error.response 
-        ? error.response.data 
+      const errorMessage = error.response
+        ? error.response.data
         : error.message
 
       console.error('Blog could not be added:', errorMessage)
@@ -127,14 +130,14 @@ const App = () => {
       <div>
         <h2>log in to application</h2>
         <Notification message={message} messageType={messageType} />
-        <LoginForm 
-          credentials={{username, password}} 
-          setCredentials={{setUsername, setPassword}} 
-          handleLogin={handleLogin} 
+        <LoginForm
+          credentials={{ username, password }}
+          setCredentials={{ setUsername, setPassword }}
+          handleLogin={handleLogin}
         />
       </div>
     )
-  } 
+  }
 
   return (
     <div>
@@ -146,13 +149,13 @@ const App = () => {
       <Togglable buttonLabel='create new blog' ref={blogFormRef}>
         <BlogForm createBlog={addBlog}/>
       </Togglable>
-      <Blogs 
-        blogs={blogs} 
-        updateBlogs={updateBlogList} 
-        removeBlog={removeBlog} 
+      <Blogs
+        blogs={blogs}
+        updateBlogs={updateBlogList}
+        removeBlog={removeBlog}
         loggedUser={user}
       />
-    </div> 
+    </div>
   )
 }
 
