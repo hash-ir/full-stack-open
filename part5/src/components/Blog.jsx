@@ -48,12 +48,12 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
   }
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className='blog'>
       {localBlog.title} {localBlog.author}
       <button onClick={() => setViewDetails(!viewDetails)}>{buttonLabel}</button>
       {
         viewDetails &&
-        <div>
+        <div className='blog-details'>
           {localBlog.url} <br />
           {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
           {localBlog.user.name} <br />
