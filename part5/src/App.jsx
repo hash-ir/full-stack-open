@@ -82,10 +82,18 @@ const App = () => {
       // only authenticated users can add blogs
       blogService.setToken(user.token)
       const returnedBlog = await blogService.create(blogObject)
+      const blogWithUser = {
+        ...returnedBlog,
+        user: {
+          username: user.username,
+          name: user.name,
+          id: returnedBlog.user
+        }
+      }
       /* no need to call `updateBlogList` here since 'likes' is not
       used as an input (default: 0) and blog is displayed at the
       bottom of the list -> in agreement with the sorting */
-      setBlogs(blogs.concat(returnedBlog))
+      setBlogs(blogs.concat(blogWithUser))
 
       setNotification(
         `a new blog ${blogObject.title} by ${blogObject.author} added`,

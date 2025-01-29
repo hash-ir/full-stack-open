@@ -49,19 +49,15 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
 
   return (
     <div style={blogStyle}>
-      {localBlog.title}
+      {localBlog.title} {localBlog.author}
       <button onClick={() => setViewDetails(!viewDetails)}>{buttonLabel}</button>
       {
         viewDetails &&
         <div>
           {localBlog.url} <br />
           {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
-          {localBlog.author} <br />
+          {localBlog.user.name} <br />
           {
-            /* this does not work when a new blog is added by the
-            logged user (without reloading)
-            TODO: toggle visibility of the 'remove' button by using
-            a state like for `viewDetails` */
             localBlog.user
             && localBlog.user.username === loggedUser.username
             && <button onClick={remove}>remove</button>
