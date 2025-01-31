@@ -39,6 +39,7 @@ const BlogForm = ({ createBlog }) => {
                 title: target.value
               })
             }
+            id='blog-title'
           />
         </div>
         <div>
@@ -53,6 +54,7 @@ const BlogForm = ({ createBlog }) => {
                 author: target.value
               })
             }
+            id='blog-author'
           />
         </div>
         <div>
@@ -67,6 +69,7 @@ const BlogForm = ({ createBlog }) => {
                 url: target.value
               })
             }
+            id='blog-url'
           />
         </div>
         <button type="submit">create</button>
