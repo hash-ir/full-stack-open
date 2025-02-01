@@ -1,0 +1,16 @@
+{
+  "name": "part5-tests",
+  "version": "1.0.0",
+  "description": "E2E tests of the Blog app",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:report": "playwright show-report"
+  },
+  "author": "Hashir Ahmad",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.50.1",
+    "@types/node": "^22.13.0"
+  }
+}
