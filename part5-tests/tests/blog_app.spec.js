@@ -1,4 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
+const { loginWith } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -23,16 +24,12 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-        await page.getByTestId('username').fill('tester')
-        await page.getByTestId('password').fill('vois-sur-ton-chemin')
-        await page.getByRole('button', { name: 'login' }).click()
+        await loginWith(page, 'tester', 'vois-sur-ton-chemin')
         await expect(page.getByText('Test User logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-        await page.getByTestId('username').fill('tester')
-        await page.getByTestId('password').fill('wrong')
-        await page.getByRole('button', { name: 'login' }).click()
+        await loginWith(page, 'tester', 'wrong')
         
         const errorDiv = await page.locator('.error')
         await expect(errorDiv).toContainText('invalid username or password')
