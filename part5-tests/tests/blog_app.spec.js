@@ -57,5 +57,26 @@ describe('Blog app', () => {
         const successDiv = await page.locator('.success')
         await expect(successDiv).toHaveCSS('color', 'rgb(0, 128, 0)')
     })
+
+    test('a blog can be liked', async ({ page }) => {
+        const blogElement = await page.locator('.blog')
+          .filter({ hasText: 'A blog created by Playwright' })
+          .waitFor()
+        await blogElement.getByRole('button', { name: 'view' }).click()
+        const blogDetails = blogContainer.locator('.blog-details')
+        const likesText = await blogDetails.locator('text=/\\d+/').first().textContent()
+        // Get the initial likes value
+        const initialLikes = parseInt(likesText, 10)
+
+        // Click the like button
+        await blogElement.getByRole('button', { name: 'like' }).click()
+
+        // Check that the final likes value incremented by 1
+        await expect(async () => {
+          const newLikesText = await blogDetails.locator('text=/\\d+/').first().textContent()
+          const newLikes = parseInt(newLikesText, 10)
+          expect(newLikes).toBe(initialLikes + 1)
+        }).toPass()
+    })
   })
 })
