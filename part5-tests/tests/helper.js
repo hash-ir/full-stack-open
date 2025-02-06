@@ -10,6 +10,8 @@ const createBlog = async (page, { title, author, url }) => {
   await page.getByTestId('author').fill(author)
   await page.getByTestId('url').fill(url)
   await page.getByRole('button', { name: 'create' }).click()
+  // Slow down the insert operation
+  // Wait for the created blog to render
   await page.locator('.blog')
     .getByText(title)
     .waitFor()
