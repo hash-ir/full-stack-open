@@ -81,7 +81,7 @@ describe('Blog app', () => {
       test('a blog can be liked', async ({ page }) => {
         // Find the blog div and search for a blog by title
         const blogContainer = await page.locator('.blog')
-          .filter({ hasText: 'Another Blog by Playwright'})
+          .filter({ hasText: 'Another Blog by Playwright' })
           
         // Click the view button to show blog details
         await blogContainer.getByRole('button', { name: 'view' }).click()
@@ -110,6 +110,27 @@ describe('Blog app', () => {
           const newLikes = parseInt(newLikesText, 10)
           expect(newLikes).toBe(initialLikes + 1)
         }).toPass()
+      })
+
+      test.only('a blog can be deleted only by the user who added it', async ({ page, request }) => {
+        // Find the blog div and search for a blog by title
+        const blogContainer = await page.locator('.blog')
+          .filter({ hasText: 'Another Blog by Playwright' })
+
+        // Click the view button to show blog details
+        await blogContainer.getByRole('button', { name: 'view' }).click()
+
+        const blogDetails = blogContainer.locator('.blog-details')
+
+        // Accept the blog deletion dialog
+        page.on('dialog', dialog => dialog.accept())
+        await blogDetails.getByRole('button', { name: 'remove' }).click()
+
+        // Check that the blog doesn't exist anymore
+        const updatedBlogContainer = await page.locator('.blog')
+          .getByText('Another Blog by Playwright')
+          .waitFor()
+        expect(updatedBlogContainer).not.toBeDefined()
       })
     })
   })
