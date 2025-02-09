@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog } = require('./helper')
+const { loginWith, createBlog, logout } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -8,11 +8,20 @@ describe('Blog app', () => {
 
     // Create a test user
     await request.post('http://localhost:3003/api/users', {
-        data: {
-            name: 'Test User',
-            username: 'tester',
-            password: 'vois-sur-ton-chemin'
-        }
+      data: {
+          name: 'Senior Tester',
+          username: 'senior',
+          password: 'srpass'
+      }
+    })
+
+    // Create another user
+    await request.post('http://localhost:3003/api/users', {
+      data: {
+        name: 'Junior Tester',
+        username: 'junior',
+        password: 'jrpass'
+      }
     })
 
     // Go to the app homepage
@@ -28,12 +37,12 @@ describe('Blog app', () => {
 
   describe('Login', () => {
     test('succeeds with correct credentials', async ({ page }) => {
-      await loginWith(page, 'tester', 'vois-sur-ton-chemin')
-      await expect(page.getByText('Test User logged in')).toBeVisible()
+      await loginWith(page, 'senior', 'srpass')
+      await expect(page.getByText('Senior Tester logged in')).toBeVisible()
     })
 
     test('fails with wrong credentials', async ({ page }) => {
-      await loginWith(page, 'tester', 'wrong')
+      await loginWith(page, 'senior', 'wrong')
       
       const errorDiv = await page.locator('.error')
       
@@ -41,14 +50,14 @@ describe('Blog app', () => {
       await expect(errorDiv).toContainText('invalid username or password')
       await expect(errorDiv).toHaveCSS('color', 'rgb(255, 0, 0)')
       
-      await expect(page.getByText('Test User logged in')).not.toBeVisible()
+      await expect(page.getByText('Senior Tester logged in')).not.toBeVisible()
     })
   })
 
   describe('When logged in', () => {
     beforeEach(async ({ page }) => {
       // Log in with test user for the following tests
-      loginWith(page, 'tester', 'vois-sur-ton-chemin')
+      await loginWith(page, 'senior', 'srpass')
     })
 
     test('a new blog can be created', async ({ page }) => {
@@ -112,7 +121,7 @@ describe('Blog app', () => {
         }).toPass()
       })
 
-      test.only('a blog can be deleted only by the user who added it', async ({ page, request }) => {
+      test('a blog can be deleted only by the user who added it', async ({ page }) => {
         // Find the blog div and search for a blog by title
         const blogContainer = await page.locator('.blog')
           .filter({ hasText: 'Another Blog by Playwright' })
@@ -131,6 +140,26 @@ describe('Blog app', () => {
           .getByText('Another Blog by Playwright')
           .waitFor()
         expect(updatedBlogContainer).not.toBeDefined()
+      })
+
+      test('the remove button is visible only to the user who added the blog', async ({ page }) => {
+        // Log out from 'senior' and log in with the 'junior'
+        await logout(page)
+        await loginWith(page, 'junior', 'jrpass')
+
+        // Find the blog div and search for a blog by title
+        await page.waitForSelector('.blog')
+        const blogContainer = await page.locator('.blog')
+          .filter({ hasText: 'Another Blog by Playwright' })
+        await blogContainer.waitFor()
+
+        // Click the view button to show blog details
+        await blogContainer.getByRole('button', { name: 'view' }).click()
+
+        // Check that the remove button is not visible 'junior'
+        // who did not create the blog
+        const blogDetails = blogContainer.locator('.blog-details')
+        await expect(blogDetails.getByRole('button', { name: 'remove' })).toHaveCount(0)
       })
     })
   })
