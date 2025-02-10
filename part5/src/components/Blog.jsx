@@ -55,7 +55,7 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
         viewDetails &&
         <div className='blog-details'>
           {localBlog.url} <br />
-          {localBlog.likes} <button onClick={increaseLikes}>like</button> <br />
+          <span data-testid="likes">{localBlog.likes}</span> <button onClick={increaseLikes}>like</button> <br />
           {localBlog.user.name} <br />
           {
             localBlog.user

@@ -1,5 +1,5 @@
 const { test, expect, beforeEach, describe } = require('@playwright/test')
-const { loginWith, createBlog, logout } = require('./helper')
+const { loginWith, createBlog, logout, postBlogs, getUserToken } = require('./helper')
 
 describe('Blog app', () => {
   beforeEach(async ({ page, request }) => {
@@ -160,6 +160,91 @@ describe('Blog app', () => {
         // who did not create the blog
         const blogDetails = blogContainer.locator('.blog-details')
         await expect(blogDetails.getByRole('button', { name: 'remove' })).toHaveCount(0)
+      })
+    })
+
+    describe('and multiple blogs exist', () => {
+      let token
+      
+      beforeEach(async ({ page }) => {
+        // Increase test timeout since we're creating multiple blogs
+        test.setTimeout(10000)
+
+        // Create the following test blogs
+        const blogs = [
+          {
+            title: "React patterns",
+            author: "Michael Chan",
+            url: "https://reactpatterns.com/",
+            likes: 7,
+          },
+          {
+            title: "Go To Statement Considered Harmful",
+            author: "Edsger W. Dijkstra",
+            url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html",
+            likes: 5,
+          },
+          {
+            title: "Canonical string reduction",
+            author: "Edsger W. Dijkstra",
+            url: "http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html",
+            likes: 12,
+          },
+          {
+            title: "First class tests",
+            author: "Robert C. Martin",
+            url: "http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll",
+            likes: 10,
+          },
+          {
+            title: "TDD harms architecture",
+            author: "Robert C. Martin",
+            url: "http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html",
+            likes: 0,
+          },
+          {
+            title: "Type wars",
+            author: "Robert C. Martin",
+            url: "http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html",
+            likes: 2,
+          }  
+        ]
+
+        // Get authentication token of logged in user
+        const response = await getUserToken('senior', 'srpass')
+        token = `Bearer ${(await response.json()).token}`
+
+        // Send a post API call to the server
+        await postBlogs(blogs, token)
+        await page.reload()
+
+        // Wait for atleast one blog to be visible after reload
+        await page.waitForSelector('.blog')
+      })
+
+      test('blogs are arranged in the decreasing order of likes', async ({ page }) => {
+        const blogs = await page.locator('.blog')
+        const count = await blogs.count()
+  
+        /* The DOM order of blogs is maintained here since because of
+        the for loop (sequential), the 'view' buttons are clicked in
+        order and awaited (sequential await) before pushing each
+        promise to the array 
+        A nice guide: https://jrsinclair.com/articles/2019/how-to-run-async-js-in-parallel-or-sequential/ */ 
+        const promises = []
+        for (let i = 0; i < count; i++) {
+          const blog = blogs.nth(i)
+          await blog.getByRole('button', { name: 'view' }).click()
+          promises.push(blog.getByTestId('likes').textContent())
+        }
+
+        // Gather all the likes (promises)
+        const likesTexts = await Promise.all(promises)
+        const likes = likesTexts.map(like => parseInt(like))
+    
+        // Check that likes are in decreasing order
+        const isSorted = likes.every((like, i) => i === 0 || like <= likes[i - 1])
+        expect(isSorted).toBe(true)
       })
     })
   })
