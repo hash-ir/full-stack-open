@@ -88,35 +88,28 @@ describe('Blog app', () => {
       })
 
       test('a blog can be liked', async ({ page }) => {
-        // Find the blog div and search for a blog by title
+        test.setTimeout(5000)
+        await page.waitForSelector('.blog')
         const blogContainer = await page.locator('.blog')
           .filter({ hasText: 'Another Blog by Playwright' })
           
         // Click the view button to show blog details
         await blogContainer.getByRole('button', { name: 'view' }).click()
+        const blogDetails = await blogContainer.locator('.blog-details')
 
-        // Find the first numerical value in blog details
-        // This must be the likes text
-        const blogDetails = blogContainer.locator('.blog-details')
-        const likesText = await blogDetails.locator('text=/\\d+/').first().textContent()
+        // Get initial likes
+        const likesElement = blogDetails.getByTestId('likes')
+        const initialLikes = parseInt(await likesElement.textContent(), 10)
         
-        // Get the initial likes value
-        const initialLikes = parseInt(likesText, 10)
-
-        // Wait for the initial likes to render
-        await blogDetails.getByText(likesText).waitFor()
-        
-        // Click the like button now to increase the likes
+        // Click like and wait for the network response to complete
         await blogDetails.getByRole('button', { name: 'like' }).click()
         
-        // Check that the new likes are 1 more than the initial likes
+        /* Wait for likes to update using polling assertion. Use in
+        tandem with test.setTimeout.
+
+        Docs: https://playwright.dev/docs/test-assertions#expecttopass */
         await expect(async () => {
-          // Again, the first numerical value will be the likes
-          const newLikesText = await blogDetails.locator('text=/\\d+/').first().textContent()
-          
-          // Wait for the new likes to appear
-          await blogDetails.getByText(newLikesText).waitFor()
-          const newLikes = parseInt(newLikesText, 10)
+          const newLikes = parseInt(await likesElement.textContent(), 10)
           expect(newLikes).toBe(initialLikes + 1)
         }).toPass()
       })
@@ -151,7 +144,8 @@ describe('Blog app', () => {
         await page.waitForSelector('.blog')
         const blogContainer = await page.locator('.blog')
           .filter({ hasText: 'Another Blog by Playwright' })
-        await blogContainer.waitFor()
+          // .waitFor({ state: 'visible' })
+        // await blogContainer.waitFor()
 
         // Click the view button to show blog details
         await blogContainer.getByRole('button', { name: 'view' }).click()
@@ -167,7 +161,8 @@ describe('Blog app', () => {
       let token
       
       beforeEach(async ({ page }) => {
-        // Increase test timeout since we're creating multiple blogs
+        // Increase test timeout for this hook since we're creating
+        // multiple blogs
         test.setTimeout(10000)
 
         // Create the following test blogs

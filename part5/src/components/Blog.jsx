@@ -22,11 +22,11 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
   TODO: implement a fix! */
   const increaseLikes = async () => {
     const updatedBlog = {
-      ...blog,
-      likes: blog.likes + 1,
-      /* this avoids violating the schema and using `$set` update
-      method of mongodb correctly */
-      user: blog.user.id
+      ...localBlog,
+      likes: localBlog.likes + 1,
+      /* set the user id here explicitly to avoid mongoose schema
+      violation when using the `$set` update method */
+      user: localBlog.user.id
     }
 
     const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog)
