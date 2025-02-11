@@ -1,0 +1,3 @@
+[submodule "part3"]
+	path = part3
+	url = https://github.com/hash-ir/full-stack-open-part3.git
