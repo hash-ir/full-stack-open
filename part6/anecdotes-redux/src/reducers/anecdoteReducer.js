@@ -32,6 +32,8 @@ const reducer = (state = initialState, action) => {
         anecdoteObject.id !== id ? anecdoteObject : changedAnecdote
       )
     }
+    case 'NEW NOTE':
+      return [...state, asObject(action.payload)]
   }
 
   return state
