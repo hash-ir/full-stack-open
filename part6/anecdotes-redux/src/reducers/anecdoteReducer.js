@@ -30,10 +30,11 @@ const reducer = (state = initialState, action) => {
       }
       return state.map(anecdoteObject => 
         anecdoteObject.id !== id ? anecdoteObject : changedAnecdote
-      )
+      ).sort((a, b) => b.votes - a.votes)
     }
     case 'NEW NOTE':
       return [...state, asObject(action.payload)]
+        .sort((a, b) => b.votes - a.votes)
   }
 
   return state
