@@ -40,4 +40,23 @@ const reducer = (state = initialState, action) => {
   return state
 }
 
+// action creator for voting anecdotes
+export const vote = (id) => {
+  return {
+    type: 'VOTE',
+    payload: {id} 
+  }
+}
+
+// action creator for adding anecdotes
+export const addAnecdote = (event) => {
+  event.preventDefault()
+  const content = event.target.anecdote.value
+  event.target.anecdote.value = ''
+  return {
+    type: 'NEW NOTE',
+    payload: content
+  }
+}
+
 export default reducer
