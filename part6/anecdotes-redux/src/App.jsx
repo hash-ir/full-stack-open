@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux'
-import { vote, addAnecdote } from './reducers/anecdoteReducer'
+import { vote } from './reducers/anecdoteReducer'
 import AnecdoteForm from './components/AnecdoteForm'
 
 const App = () => {
@@ -20,7 +20,7 @@ const App = () => {
           </div>
         </div>
       )}
-      <AnecdoteForm handleSubmit={(event) => dispatch(addAnecdote(event))} />
+      <AnecdoteForm />
     </div>
   )
 }
