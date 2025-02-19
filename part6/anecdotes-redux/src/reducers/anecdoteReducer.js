@@ -39,7 +39,8 @@ const anecdoteSlice = createSlice({
       ).sort((a, b) => b.votes - a.votes)
     },
     addAnecdote(state, action) {
-      return [...state, asObject(action.payload)]
+      const newAnecdote = action.payload
+      return [...state, newAnecdote]
         .sort((a, b) => b.votes - a.votes)
     },
     setAnecdotes(state, action) {
