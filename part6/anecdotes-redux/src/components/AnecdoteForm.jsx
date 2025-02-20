@@ -16,12 +16,8 @@ const AnecdoteForm = () => {
 
         // Show Notification and clear after 5s
         dispatch(setNotification(`created ${content}`, 5))
-        // dispatch(setNotification(`created '${content}'`))
-        // setTimeout(() => {
-        //     dispatch(clearNotification())
-        // }, 5000)
-        
     }
+    
     return (
         <>
             <h2>create new</h2>

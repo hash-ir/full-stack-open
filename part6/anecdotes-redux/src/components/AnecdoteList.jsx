@@ -19,10 +19,6 @@ const AnecdoteList = () => {
 
         // Show Notification and clear after 5s
         dispatch(setNotification(`you voted '${anecdote.content}'`, 5))
-        // dispatch(setNotification(`you voted '${anecdote.content}'`))
-        // setTimeout(() => {
-        //     dispatch(clearNotification())
-        // }, 5000)
     }
 
     return (
