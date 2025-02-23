@@ -13,7 +13,17 @@ const AnecdoteForm = () => {
       queryClient.setQueryData(['anecdotes'],
         anecdotes.concat(newAnecdote)
       )
-    } 
+    },
+    onError: async () => {
+      await dispatch({
+        type: 'SHOW',
+        payload: `too short anecdote, must have length 5 or more`
+      })
+
+      setTimeout(async () => {
+        await dispatch({ type: 'HIDE' })
+      }, 5000)
+    }
   })
 
   const onCreate = async (event) => {
@@ -26,8 +36,8 @@ const AnecdoteForm = () => {
       payload: `anecdote '${content}' created`
     })
 
-    setTimeout(() => {
-      dispatch({ type: 'HIDE' })
+    setTimeout(async () => {
+      await dispatch({ type: 'HIDE' })
     }, 5000)
 }
 

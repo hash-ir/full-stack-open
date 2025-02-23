@@ -31,8 +31,8 @@ const App = () => {
       payload: `anecdote '${anecdote.content}' voted`
     })
 
-    setTimeout(() => {
-      dispatch({ type: 'HIDE' })
+    setTimeout(async () => {
+      await dispatch({ type: 'HIDE' })
     }, 5000)
   }
 
