@@ -1,137 +1,122 @@
-import { useState, useEffect, useRef } from 'react'
-import Blogs from './components/Blogs'
-import LoginForm from './components/LoginForm'
-import BlogForm from './components/BlogForm'
-import Togglable from './components/Togglable'
-import blogService from './services/blogs'
-import loginService from './services/login'
-import Notification from './components/Notification'
-import './index.css'
+import { useState, useEffect, useRef } from "react";
+import Blogs from "./components/Blogs";
+import LoginForm from "./components/LoginForm";
+import BlogForm from "./components/BlogForm";
+import Togglable from "./components/Togglable";
+import blogService from "./services/blogs";
+import loginService from "./services/login";
+import Notification from "./components/Notification";
+import "./index.css";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState('success')
+  const [blogs, setBlogs] = useState([]);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("success");
 
   // control BlogForm component visibility from outside
-  const blogFormRef = useRef()
+  const blogFormRef = useRef();
 
   useEffect(() => {
-    const loggedUserJson = window.localStorage.getItem('loggedUser')
+    const loggedUserJson = window.localStorage.getItem("loggedUser");
     if (loggedUserJson) {
-      const user = JSON.parse(loggedUserJson)
-      setUser(user)
+      const user = JSON.parse(loggedUserJson);
+      setUser(user);
     }
 
     blogService
       .getAll()
-      .then(blogs =>
-        setBlogs( blogs.sort((a, b) => b.likes - a.likes) )
-      )
-  }, [])
+      .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)));
+  }, []);
 
   const setNotification = (message, messageType) => {
-    setMessage(message)
-    setMessageType(messageType)
+    setMessage(message);
+    setMessageType(messageType);
     setTimeout(() => {
-      setMessage('')
-    }, 5000)
-  }
+      setMessage("");
+    }, 5000);
+  };
 
   const handleLogin = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
     try {
-      const user = await loginService.login({ username, password })
-      setUser(user)
+      const user = await loginService.login({ username, password });
+      setUser(user);
       // store in browser's local storage
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      setUsername('')
-      setPassword('')
+      window.localStorage.setItem("loggedUser", JSON.stringify(user));
+      setUsername("");
+      setPassword("");
     } catch (error) {
-      const errorMessage = error.response
-        ? error.response.data
-        : error.message
-      setNotification(errorMessage['error'], 'error')
-      console.error('Login failed:', errorMessage)
+      const errorMessage = error.response ? error.response.data : error.message;
+      setNotification(errorMessage["error"], "error");
+      console.error("Login failed:", errorMessage);
     }
-  }
-
+  };
 
   const handleLogout = async (event) => {
-    event.preventDefault()
-    const loggedUserJson = window.localStorage.getItem('loggedUser')
+    event.preventDefault();
+    const loggedUserJson = window.localStorage.getItem("loggedUser");
     if (loggedUserJson || user) {
-      window.localStorage.removeItem('loggedUser')
-      setNotification(
-        `${user.name} successfully logged out`,
-        'success'
-      )
-      setUser(null)
+      window.localStorage.removeItem("loggedUser");
+      setNotification(`${user.name} successfully logged out`, "success");
+      setUser(null);
       // is `else` really needed?
     } else {
-      console.error(`${user.username} is not logged in`)
+      console.error(`${user.username} is not logged in`);
     }
-  }
+  };
 
   const addBlog = async (blogObject) => {
     try {
-      blogFormRef.current.toggleVisibility()
+      blogFormRef.current.toggleVisibility();
       // only authenticated users can add blogs
-      blogService.setToken(user.token)
-      const returnedBlog = await blogService.create(blogObject)
+      blogService.setToken(user.token);
+      const returnedBlog = await blogService.create(blogObject);
       const blogWithUser = {
         ...returnedBlog,
         user: {
           username: user.username,
           name: user.name,
-          id: returnedBlog.user
-        }
-      }
+          id: returnedBlog.user,
+        },
+      };
       /* no need to call `updateBlogList` here since 'likes' is not
       used as an input (default: 0) and blog is displayed at the
       bottom of the list -> in agreement with the sorting */
-      setBlogs(blogs.concat(blogWithUser))
+      setBlogs(blogs.concat(blogWithUser));
 
       setNotification(
         `a new blog ${blogObject.title} by ${blogObject.author} added`,
-        'success'
-      )
+        "success",
+      );
     } catch (error) {
-      const errorMessage = error.response
-        ? error.response.data
-        : error.message
-      setNotification(
-        errorMessage['error'],
-        'error'
-      )
-      console.error('Blog could not be added:', errorMessage)
+      const errorMessage = error.response ? error.response.data : error.message;
+      setNotification(errorMessage["error"], "error");
+      console.error("Blog could not be added:", errorMessage);
     }
-  }
+  };
 
   /* re-render the component when a blog is updated
   e.g., by clicking the 'like' button */
   const updateBlogList = async () => {
-    const blogs = await blogService.getAll()
-    setBlogs(blogs.sort((a, b) => b.likes - a.likes ))
-  }
+    const blogs = await blogService.getAll();
+    setBlogs(blogs.sort((a, b) => b.likes - a.likes));
+  };
 
   const removeBlog = async (id) => {
     try {
       // only authenticated users can remove blogs
-      blogService.setToken(user.token)
-      await blogService.remove(id)
-      updateBlogList()
+      blogService.setToken(user.token);
+      await blogService.remove(id);
+      updateBlogList();
     } catch (error) {
-      const errorMessage = error.response
-        ? error.response.data
-        : error.message
+      const errorMessage = error.response ? error.response.data : error.message;
 
-      console.error('Blog could not be added:', errorMessage)
+      console.error("Blog could not be added:", errorMessage);
     }
-  }
+  };
 
   if (user === null) {
     return (
@@ -144,18 +129,19 @@ const App = () => {
           handleLogin={handleLogin}
         />
       </div>
-    )
+    );
   }
 
   return (
     <div>
       <h2>blogs</h2>
       <Notification message={message} messageType={messageType} />
-      <p>{user.name} logged in
+      <p>
+        {user.name} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
-      <Togglable buttonLabel='create new blog' ref={blogFormRef}>
-        <BlogForm createBlog={addBlog}/>
+      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+        <BlogForm createBlog={addBlog} />
       </Togglable>
       <Blogs
         blogs={blogs}
@@ -164,7 +150,7 @@ const App = () => {
         loggedUser={user}
       />
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

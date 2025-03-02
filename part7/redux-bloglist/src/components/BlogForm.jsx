@@ -1,28 +1,28 @@
-import PropTypes from 'prop-types'
-import { useState } from 'react'
+import PropTypes from "prop-types";
+import { useState } from "react";
 
 const BlogForm = ({ createBlog }) => {
   const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: ''
-  })
+    title: "",
+    author: "",
+    url: "",
+  });
 
   const addBlog = (event) => {
-    event.preventDefault()
+    event.preventDefault();
     createBlog({
       title: newBlog.title,
       author: newBlog.author,
-      url: newBlog.url
-    })
+      url: newBlog.url,
+    });
 
     // Reset the form
     setNewBlog({
-      title: '',
-      author: '',
-      url: ''
-    })
-  }
+      title: "",
+      author: "",
+      url: "",
+    });
+  };
   return (
     <div>
       <form onSubmit={addBlog}>
@@ -30,59 +30,59 @@ const BlogForm = ({ createBlog }) => {
         <div>
           title
           <input
-            data-testid='title'
+            data-testid="title"
             type="text"
             value={newBlog.title}
             name="Title"
             onChange={({ target }) =>
               setNewBlog({
                 ...newBlog,
-                title: target.value
+                title: target.value,
               })
             }
-            id='blog-title'
+            id="blog-title"
           />
         </div>
         <div>
           author
           <input
-            data-testid='author'
+            data-testid="author"
             type="text"
             value={newBlog.author}
             name="Author"
             onChange={({ target }) =>
               setNewBlog({
                 ...newBlog,
-                author: target.value
+                author: target.value,
               })
             }
-            id='blog-author'
+            id="blog-author"
           />
         </div>
         <div>
           url
           <input
-            data-testid='url'
+            data-testid="url"
             type="text"
             value={newBlog.url}
             name="URL"
             onChange={({ target }) =>
               setNewBlog({
                 ...newBlog,
-                url: target.value
+                url: target.value,
               })
             }
-            id='blog-url'
+            id="blog-url"
           />
         </div>
         <button type="submit">create</button>
       </form>
     </div>
-  )
-}
+  );
+};
 
 BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired
-}
+  createBlog: PropTypes.func.isRequired,
+};
 
-export default BlogForm
+export default BlogForm;
