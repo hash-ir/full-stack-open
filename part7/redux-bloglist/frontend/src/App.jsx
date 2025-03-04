@@ -9,6 +9,7 @@ import loginService from "./services/login";
 import Notification from "./components/Notification";
 import { setNotification } from "./reducers/notificationReducer";
 import "./index.css";
+import { createBlog, initializeBlogs } from "./reducers/blogReducer";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -27,9 +28,11 @@ const App = () => {
       setUser(user);
     }
 
-    blogService
-      .getAll()
-      .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)));
+    // blogService
+    //   .getAll()
+    //   .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)));
+
+    dispatch(initializeBlogs())
   }, []);
 
   const handleLogin = async (event) => {
@@ -67,20 +70,20 @@ const App = () => {
       blogFormRef.current.toggleVisibility();
       // only authenticated users can add blogs
       blogService.setToken(user.token);
-      const returnedBlog = await blogService.create(blogObject);
-      const blogWithUser = {
-        ...returnedBlog,
-        user: {
-          username: user.username,
-          name: user.name,
-          id: returnedBlog.user,
-        },
-      };
+      // const returnedBlog = await blogService.create(blogObject);
+      // const blogWithUser = {
+      //   ...returnedBlog,
+      //   user: {
+      //     username: user.username,
+      //     name: user.name,
+      //     id: returnedBlog.user,
+      //   },
+      // };
       /* no need to call `updateBlogList` here since 'likes' is not
       used as an input (default: 0) and blog is displayed at the
       bottom of the list -> in agreement with the sorting */
-      setBlogs(blogs.concat(blogWithUser));
-
+      // setBlogs(blogs.concat(blogWithUser));
+      dispatch(createBlog(blogObject))
       dispatch(setNotification(
         `a new blog ${blogObject.title} by ${blogObject.author} added`,
         "success",
@@ -137,7 +140,7 @@ const App = () => {
         <BlogForm createBlog={addBlog} />
       </Togglable>
       <Blogs
-        blogs={blogs}
+        // blogs={blogs}
         updateBlogs={updateBlogList}
         removeBlog={removeBlog}
         loggedUser={user}

@@ -1,7 +1,10 @@
+import { useSelector } from "react-redux";
 import Blog from "./Blog";
 import PropTypes from "prop-types";
 
-const Blogs = ({ blogs, updateBlogs, removeBlog, loggedUser }) => {
+const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
+  const blogs = useSelector(({ blogs }) => blogs)
+  
   return (
     <div>
       {blogs.map((blog) => (
@@ -19,7 +22,7 @@ const Blogs = ({ blogs, updateBlogs, removeBlog, loggedUser }) => {
 };
 
 Blogs.propTypes = {
-  blogs: PropTypes.array.isRequired,
+  // blogs: PropTypes.array.isRequired,
   updateBlogs: PropTypes.func.isRequired,
   removeBlog: PropTypes.func.isRequired,
   loggedUser: PropTypes.object.isRequired,
