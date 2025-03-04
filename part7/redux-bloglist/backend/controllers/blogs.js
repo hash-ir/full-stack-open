@@ -29,11 +29,21 @@ blogsRouter.post('/', async (request, response) => {
     })
 
     const savedBlog = await blog.save()
+    // send user info (name, username) to update the frontend
+    const blogWithUserInfo = {
+        // `toObject` converts a Mongoose document to plain JS object
+        ...savedBlog.toObject(),
+        user: {
+            username: user.username,
+            name: user.name,
+            id: savedBlog.user
+        }
+    }
 
     user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
-    response.status(201).json(savedBlog)
+    response.status(201).json(blogWithUserInfo)
 })
 
 blogsRouter.delete('/:id', async (request, response) => {
