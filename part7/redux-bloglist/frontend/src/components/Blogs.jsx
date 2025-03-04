@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
   const blogs = useSelector(({ blogs }) => blogs)
-  
+  console.log(blogs)
   return (
     <div>
       {blogs.map((blog) => (
