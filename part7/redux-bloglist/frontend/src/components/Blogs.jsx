@@ -22,7 +22,6 @@ const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
 };
 
 Blogs.propTypes = {
-  // blogs: PropTypes.array.isRequired,
   updateBlogs: PropTypes.func.isRequired,
   removeBlog: PropTypes.func.isRequired,
   loggedUser: PropTypes.object.isRequired,
