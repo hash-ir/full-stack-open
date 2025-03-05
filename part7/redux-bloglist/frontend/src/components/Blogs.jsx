@@ -2,9 +2,8 @@ import { useSelector } from "react-redux";
 import Blog from "./Blog";
 import PropTypes from "prop-types";
 
-const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
-  const blogs = useSelector(({ blogs }) => blogs)
-  console.log(blogs)
+const Blogs = ({ loggedUser }) => {
+  const blogs = useSelector(({ blogs, user }) => blogs)
   return (
     <div>
       {blogs.map((blog) => (
@@ -12,8 +11,8 @@ const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
           key={blog.id}
           blog={blog}
           // synchronize local blog updates with parent
-          updateBlogs={updateBlogs}
-          removeBlog={removeBlog}
+          // updateBlogs={updateBlogs}
+          // removeBlog={removeBlog}
           loggedUser={loggedUser}
         />
       ))}
@@ -22,8 +21,8 @@ const Blogs = ({ updateBlogs, removeBlog, loggedUser }) => {
 };
 
 Blogs.propTypes = {
-  updateBlogs: PropTypes.func.isRequired,
-  removeBlog: PropTypes.func.isRequired,
+  // updateBlogs: PropTypes.func.isRequired,
+  // removeBlog: PropTypes.func.isRequired,
   loggedUser: PropTypes.object.isRequired,
 };
 

@@ -9,7 +9,7 @@ import loginService from "./services/login";
 import Notification from "./components/Notification";
 import { setNotification } from "./reducers/notificationReducer";
 import "./index.css";
-import { createBlog, initializeBlogs } from "./reducers/blogReducer";
+import { createBlog, initializeBlogs, likeBlog } from "./reducers/blogReducer";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
