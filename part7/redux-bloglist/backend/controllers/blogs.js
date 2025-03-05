@@ -49,11 +49,13 @@ blogsRouter.post('/', async (request, response) => {
 blogsRouter.delete('/:id', async (request, response) => {
     const user = request.user
     const userid = user._id
+    const blogId = request.params.id
 
-    const blogToBeDeleted = await Blog.findById(request.params.id)
+    const blogToBeDeleted = await Blog.findById(blogId)
 
     if (blogToBeDeleted.user.toString() === userid.toString()) {
         await Blog.findByIdAndDelete(blogToBeDeleted.id)
+        // with 204 status code, no content can be send 
         response.status(204).end()
     } else {
         return response.status(401).json({ error: `Delete aborted. Blog id '${blogToBeDeleted.id}' does not have user id '${userid}'` })

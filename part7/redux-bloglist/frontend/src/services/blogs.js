@@ -30,6 +30,7 @@ const remove = async (id) => {
     headers: { Authorization: token },
   };
   const response = await axios.delete(`${baseUrl}/${id}`, config);
+  // if deletion is successful (204), no data is sent just the response
   return response;
 };
 

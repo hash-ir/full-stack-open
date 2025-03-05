@@ -1,11 +1,14 @@
 import { useState } from "react";
 import blogService from "../services/blogs";
+import { deleteBlog, likeBlog } from "../reducers/blogReducer";
 import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
 
-const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
+const Blog = ({ blog, loggedUser }) => {
   const [viewDetails, setViewDetails] = useState(false);
   // synchronize blog state as the 'like' button is pressed
-  const [localBlog, setLocalBlog] = useState(blog);
+  // const [localBlog, setLocalBlog] = useState(blog);
+  const dispatch = useDispatch()
 
   const blogStyle = {
     paddingTop: 10,
@@ -20,50 +23,53 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
   /* this works but if the like button is pressed too fast, the update
   is not equal to the number of times the button is pressed
   TODO: implement a fix! */
-  const increaseLikes = async () => {
-    const updatedBlog = {
-      ...localBlog,
-      likes: localBlog.likes + 1,
-      /* set the user id here explicitly to avoid mongoose schema
-      violation when using the `$set` update method */
-      user: localBlog.user.id,
+  const handleLike = async () => {
+    const likedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+      // set user here explicitly to avoid mongoose schema violation
+      user: blog.user.id,
     };
 
-    const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog);
+    dispatch(likeBlog(likedBlog))
+
+    // const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog);
     // required to update the likes displayed
-    setLocalBlog(returnedBlog);
+    // setLocalBlog(returnedBlog);
 
     /* signal to parent to update the blogs list (which will include
     the new updates) */
-    if (updateBlogs) {
-      await updateBlogs();
-    }
+    // if (updateBlogs) {
+    //   await updateBlogs();
+    // }
   };
 
-  const remove = (event) => {
+  const handleRemove = (event) => {
     event.preventDefault();
     if (
-      window.confirm(`Remove blog ${localBlog.title} by ${localBlog.author}?`)
+      window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
     ) {
-      removeBlog(localBlog.id);
+      // removeBlog(blog.id);
+      blogService.setToken(loggedUser.token)
+      dispatch(deleteBlog(blog.id))
     }
   };
 
   return (
     <div style={blogStyle} className="blog">
-      {localBlog.title} {localBlog.author}
+      {blog.title} {blog.author}
       <button onClick={() => setViewDetails(!viewDetails)}>
         {buttonLabel}
       </button>
       {viewDetails && (
         <div className="blog-details">
-          {localBlog.url} <br />
-          <span data-testid="likes">{localBlog.likes}</span>{" "}
-          <button onClick={increaseLikes}>like</button> <br />
-          {localBlog.user.name} <br />
-          {localBlog.user &&
-            localBlog.user.username === loggedUser.username && (
-              <button onClick={remove}>remove</button>
+          {blog.url} <br />
+          <span data-testid="likes">{blog.likes}</span>{" "}
+          <button onClick={handleLike}>like</button> <br />
+          {blog.user.name} <br />
+          {blog.user &&
+            blog.user.username === loggedUser.username && (
+              <button onClick={handleRemove}>remove</button>
             )}
         </div>
       )}
@@ -73,8 +79,8 @@ const Blog = ({ blog, updateBlogs, removeBlog, loggedUser }) => {
 
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
-  updateBlogs: PropTypes.func.isRequired,
-  removeBlog: PropTypes.func.isRequired,
+  // updateBlogs: PropTypes.func.isRequired,
+  // removeBlog: PropTypes.func.isRequired,
   loggedUser: PropTypes.object.isRequired,
 };
 
