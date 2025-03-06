@@ -1,23 +1,24 @@
 import { useState, useEffect, useRef } from "react";
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Blogs from "./components/Blogs";
 import LoginForm from "./components/LoginForm";
 import BlogForm from "./components/BlogForm";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
-import loginService from "./services/login";
+// import loginService from "./services/login";
 import Notification from "./components/Notification";
 import { setNotification } from "./reducers/notificationReducer";
 import "./index.css";
-import { createBlog, initializeBlogs, likeBlog } from "./reducers/blogReducer";
+import { createBlog, initializeBlogs } from "./reducers/blogReducer";
+import { login, logout, setUser } from "./reducers/userReducer";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
+  // const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const dispatch = useDispatch()
-
+  const user = useSelector(state => state.user)
   // control BlogForm component visibility from outside
   const blogFormRef = useRef();
 
@@ -25,39 +26,24 @@ const App = () => {
     const loggedUserJson = window.localStorage.getItem("loggedUser");
     if (loggedUserJson) {
       const user = JSON.parse(loggedUserJson);
-      setUser(user);
+      // setUser(user);
+      dispatch(setUser(user))
     }
     dispatch(initializeBlogs())
   }, []);
 
   const handleLogin = async (event) => {
     event.preventDefault();
-    try {
-      const user = await loginService.login({ username, password });
-      setUser(user);
-      dispatch(setNotification(`${user.name} logged in`, 'success'))
-      // store in browser's local storage
-      window.localStorage.setItem("loggedUser", JSON.stringify(user));
-      setUsername("");
-      setPassword("");
-    } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message;
-      dispatch(setNotification(errorMessage["error"], "error"))
-      console.error("Login failed:", errorMessage);
-    }
+    // const user = await loginService.login({ username, password });
+    // setUser(user);
+    dispatch(login(username, password))
+    setUsername("");
+    setPassword("");
   };
 
   const handleLogout = async (event) => {
     event.preventDefault();
-    const loggedUserJson = window.localStorage.getItem("loggedUser");
-    if (loggedUserJson || user) {
-      window.localStorage.removeItem("loggedUser");
-      dispatch(setNotification(`${user.name} successfully logged out`, "success"));
-      setUser(null);
-      // is `else` really needed?
-    } else {
-      console.error(`${user.username} is not logged in`);
-    }
+    dispatch(logout())
   };
 
   const addBlog = async (blogObject) => {
@@ -79,22 +65,22 @@ const App = () => {
 
   /* re-render the component when a blog is updated
   e.g., by clicking the 'like' button */
-  const updateBlogList = async () => {
-    const blogs = await blogService.getAll();
-    setBlogs(blogs.sort((a, b) => b.likes - a.likes));
-  };
+  // const updateBlogList = async () => {
+  //   const blogs = await blogService.getAll();
+  //   setBlogs(blogs.sort((a, b) => b.likes - a.likes));
+  // };
 
-  const removeBlog = async (id) => {
-    try {
-      // only authenticated users can remove blogs
-      blogService.setToken(user.token);
-      await blogService.remove(id);
-      updateBlogList();
-    } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message;
-      console.error("Blog could not be added:", errorMessage);
-    }
-  };
+  // const removeBlog = async (id) => {
+  //   try {
+  //     // only authenticated users can remove blogs
+  //     blogService.setToken(user.token);
+  //     await blogService.remove(id);
+  //     updateBlogList();
+  //   } catch (error) {
+  //     const errorMessage = error.response ? error.response.data : error.message;
+  //     console.error("Blog could not be added:", errorMessage);
+  //   }
+  // };
 
   if (user === null) {
     return (
@@ -122,8 +108,8 @@ const App = () => {
         <BlogForm createBlog={addBlog} />
       </Togglable>
       <Blogs
-        updateBlogs={updateBlogList}
-        removeBlog={removeBlog}
+        // updateBlogs={updateBlogList}
+        // removeBlog={removeBlog}
         loggedUser={user}
       />
     </div>

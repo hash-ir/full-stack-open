@@ -1,7 +1,8 @@
 import { useSelector } from "react-redux";
 
 const Notification = () => {
-  const { message, messageType } = useSelector(({ notification }) => notification)
+  const { message, messageType } = useSelector(state => state.notification)
+  
   if (message === '') {
     return null;
   }

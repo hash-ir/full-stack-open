@@ -3,7 +3,7 @@ import Blog from "./Blog";
 import PropTypes from "prop-types";
 
 const Blogs = ({ loggedUser }) => {
-  const blogs = useSelector(({ blogs, user }) => blogs)
+  const blogs = useSelector(state => state.blogs)
   return (
     <div>
       {blogs.map((blog) => (
