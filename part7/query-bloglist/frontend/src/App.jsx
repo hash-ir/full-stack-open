@@ -8,13 +8,21 @@ import loginService from './services/login'
 import Notification from './components/Notification'
 import './index.css'
 import { useNotificationDispatch } from './NotificationContext'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  // const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const dispatch = useNotificationDispatch()
+  const queryClient = useQueryClient()
+  const newBlogMutation = useMutation({
+    mutationFn: blogService.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    }
+  })
   // const [message, setMessage] = useState('')
   // const [messageType, setMessageType] = useState('success')
 
@@ -28,10 +36,22 @@ const App = () => {
       setUser(user)
     }
 
-    blogService
-      .getAll()
-      .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)))
+    // blogService
+    //   .getAll()
+    //   .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)))
   }, [])
+
+  const result = useQuery({
+    queryKey: ['blogs'],
+    queryFn: blogService.getAll
+  })
+  console.log(JSON.parse(JSON.stringify(result)))
+
+  if (result.isLoading) {
+    return <div>loading data...</div>
+  }
+
+  const blogs = result.data
 
   // const setNotification = (message, messageType) => {
   //   setMessage(message)
@@ -93,19 +113,20 @@ const App = () => {
       blogFormRef.current.toggleVisibility()
       // only authenticated users can add blogs
       blogService.setToken(user.token)
-      const returnedBlog = await blogService.create(blogObject)
-      const blogWithUser = {
-        ...returnedBlog,
-        user: {
-          username: user.username,
-          name: user.name,
-          id: returnedBlog.user,
-        },
-      }
+      // const returnedBlog = await blogService.create(blogObject)
+      // const blogWithUser = {
+      //   ...returnedBlog,
+      //   user: {
+      //     username: user.username,
+      //     name: user.name,
+      //     id: returnedBlog.user,
+      //   },
+      // }
+      newBlogMutation.mutate(blogObject)
       /* no need to call `updateBlogList` here since 'likes' is not
       used as an input (default: 0) and blog is displayed at the
       bottom of the list -> in agreement with the sorting */
-      setBlogs(blogs.concat(blogWithUser))
+      // setBlogs(blogs.concat(blogWithUser))
 
       // setNotification(
       //   `a new blog ${blogObject.title} by ${blogObject.author} added`,
@@ -129,7 +150,7 @@ const App = () => {
   e.g., by clicking the 'like' button */
   const updateBlogList = async () => {
     const blogs = await blogService.getAll()
-    setBlogs(blogs.sort((a, b) => b.likes - a.likes))
+    // setBlogs(blogs.sort((a, b) => b.likes - a.likes))
   }
 
   const removeBlog = async (id) => {

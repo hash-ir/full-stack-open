@@ -1,88 +1,62 @@
-import PropTypes from 'prop-types'
-import { useState } from 'react'
+import { useField } from '../hooks/field'
 
 const BlogForm = ({ createBlog }) => {
-  const [newBlog, setNewBlog] = useState({
-    title: '',
-    author: '',
-    url: ''
-  })
+  const title = useField('text')
+  const author = useField('text')
+  const url = useField('text')
+
+  // const [newBlog, setNewBlog] = useState({
+  //   title: '',
+  //   author: '',
+  //   url: ''
+  // })
 
   const addBlog = (event) => {
     event.preventDefault()
     createBlog({
-      title: newBlog.title,
-      author: newBlog.author,
-      url: newBlog.url
+      title: title.value,
+      author: author.value,
+      url: url.value
     })
 
-    // Reset the form
-    setNewBlog({
-      title: '',
-      author: '',
-      url: ''
-    })
+    // // Reset the form
+    // setNewBlog({
+    //   title: '',
+    //   author: '',
+    //   url: ''
+    // })
   }
+
   return (
     <div>
       <form onSubmit={addBlog}>
         <h2>create new</h2>
         <div>
           title
-          <input
-            data-testid='title'
-            type="text"
-            value={newBlog.title}
-            name="Title"
-            onChange={({ target }) =>
-              setNewBlog({
-                ...newBlog,
-                title: target.value
-              })
-            }
-            id='blog-title'
-          />
+          <input {...title} name="Title" id="blog-title" data-testid="title" />
         </div>
         <div>
           author
           <input
-            data-testid='author'
-            type="text"
-            value={newBlog.author}
+            {...author}
             name="Author"
-            onChange={({ target }) =>
-              setNewBlog({
-                ...newBlog,
-                author: target.value
-              })
-            }
-            id='blog-author'
+            id="blog-author"
+            data-testid="author"
           />
         </div>
         <div>
           url
           <input
-            data-testid='url'
-            type="text"
-            value={newBlog.url}
+            {...url}
             name="URL"
-            onChange={({ target }) =>
-              setNewBlog({
-                ...newBlog,
-                url: target.value
-              })
-            }
-            id='blog-url'
+            id="blog-url"
+            data-testid="url"
           />
         </div>
         <button type="submit">create</button>
       </form>
     </div>
   )
-}
-
-BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm
