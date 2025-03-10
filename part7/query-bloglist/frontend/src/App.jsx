@@ -11,7 +11,6 @@ import { useNotificationDispatch } from './NotificationContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 const App = () => {
-  // const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -21,12 +20,10 @@ const App = () => {
     mutationFn: blogService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
-    }
+    },
   })
-  // const [message, setMessage] = useState('')
-  // const [messageType, setMessageType] = useState('success')
 
-  // control BlogForm component visibility from outside
+  // control BlogForm component visibility from App
   const blogFormRef = useRef()
 
   useEffect(() => {
@@ -35,31 +32,18 @@ const App = () => {
       const user = JSON.parse(loggedUserJson)
       setUser(user)
     }
-
-    // blogService
-    //   .getAll()
-    //   .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)))
   }, [])
 
   const result = useQuery({
     queryKey: ['blogs'],
-    queryFn: blogService.getAll
+    queryFn: blogService.getAll,
   })
-  console.log(JSON.parse(JSON.stringify(result)))
 
   if (result.isLoading) {
     return <div>loading data...</div>
   }
 
   const blogs = result.data
-
-  // const setNotification = (message, messageType) => {
-  //   setMessage(message)
-  //   setMessageType(messageType)
-  //   setTimeout(() => {
-  //     setMessage('')
-  //   }, 5000)
-  // }
 
   const showNotification = (message, messageType) => {
     dispatch({
@@ -84,10 +68,7 @@ const App = () => {
       setUsername('')
       setPassword('')
     } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message
-      // setNotification(errorMessage['error'], 'error')
-      showNotification(errorMessage['error'], 'error')
-      console.error('Login failed:', errorMessage)
+      showNotification(error.response?.data || error.message, 'error')
     }
   }
 
@@ -96,10 +77,6 @@ const App = () => {
     const loggedUserJson = window.localStorage.getItem('loggedUser')
     if (loggedUserJson || user) {
       window.localStorage.removeItem('loggedUser')
-      // setNotification(
-      //   `${user.name} successfully logged out`,
-      //   'success'
-      // )
       setUser(null)
       showNotification(`${user.name} successfully logged out`, 'success')
       // is `else` really needed?
@@ -113,36 +90,13 @@ const App = () => {
       blogFormRef.current.toggleVisibility()
       // only authenticated users can add blogs
       blogService.setToken(user.token)
-      // const returnedBlog = await blogService.create(blogObject)
-      // const blogWithUser = {
-      //   ...returnedBlog,
-      //   user: {
-      //     username: user.username,
-      //     name: user.name,
-      //     id: returnedBlog.user,
-      //   },
-      // }
       newBlogMutation.mutate(blogObject)
-      /* no need to call `updateBlogList` here since 'likes' is not
-      used as an input (default: 0) and blog is displayed at the
-      bottom of the list -> in agreement with the sorting */
-      // setBlogs(blogs.concat(blogWithUser))
-
-      // setNotification(
-      //   `a new blog ${blogObject.title} by ${blogObject.author} added`,
-      //   'success'
-      // )
       showNotification(
-        `a new blog ${blogObject.title} by ${blogObject.author} added`, 'success'
+        `a new blog ${blogObject.title} by ${blogObject.author} added`,
+        'success'
       )
     } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message
-      // setNotification(
-      //   errorMessage['error'],
-      //   'error'
-      // )
-      showNotification(errorMessage['error'], 'error')
-      console.error('Blog could not be added:', errorMessage)
+      showNotification(error.response?.data || error.message, 'error')
     }
   }
 
@@ -160,9 +114,10 @@ const App = () => {
       await blogService.remove(id)
       updateBlogList()
     } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message
-
-      console.error('Blog could not be added:', errorMessage)
+      console.error(
+        'Blog could not be added:',
+        error.response?.data || error.message
+      )
     }
   }
 
