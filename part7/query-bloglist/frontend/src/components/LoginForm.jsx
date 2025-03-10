@@ -1,29 +1,25 @@
 import PropTypes from 'prop-types'
 
-const LoginForm = ({ credentials, setCredentials, handleLogin } ) => {
+const LoginForm = ({ credentials, handleLogin } ) => {
   const { username, password } = credentials
-  const { setUsername, setPassword } = setCredentials
+
   return (
     <div>
       <form onSubmit={handleLogin}>
         <div>
           username
           <input
+            {...username}
             data-testid='username'
-            type="text"
-            value={username}
             name="Username"
-            onChange={({ target }) => setUsername(target.value)}
           />
         </div>
         <div>
           password
           <input
+            {...password}
             data-testid='password'
-            type="password"
-            value={password}
             name="Password"
-            onChange={({ target }) => setPassword(target.value)}
           />
         </div>
         <button type='submit'>login</button>
@@ -33,8 +29,7 @@ const LoginForm = ({ credentials, setCredentials, handleLogin } ) => {
 }
 
 LoginForm.propTypes = {
-  credentials: PropTypes.objectOf(PropTypes.string).isRequired,
-  setCredentials: PropTypes.objectOf(PropTypes.func).isRequired,
+  credentials: PropTypes.object.isRequired,
   handleLogin: PropTypes.func.isRequired
 }
 

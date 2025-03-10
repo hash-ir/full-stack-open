@@ -9,10 +9,11 @@ import Notification from './components/Notification'
 import './index.css'
 import { useNotificationDispatch } from './NotificationContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useField } from './hooks/field'
 
 const App = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const username = useField('text')
+  const password = useField('password')
   const [user, setUser] = useState(null)
   const dispatch = useNotificationDispatch()
   const queryClient = useQueryClient()
@@ -60,13 +61,14 @@ const App = () => {
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
-      const user = await loginService.login({ username, password })
+      const user = await loginService.login({
+        username: username.value,
+        password: password.value
+      })
       setUser(user)
       showNotification(`${user.name} logged in`, 'success')
       // store in browser's local storage
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
-      setUsername('')
-      setPassword('')
     } catch (error) {
       showNotification(error.response?.data || error.message, 'error')
     }
@@ -128,7 +130,6 @@ const App = () => {
         <Notification />
         <LoginForm
           credentials={{ username, password }}
-          setCredentials={{ setUsername, setPassword }}
           handleLogin={handleLogin}
         />
       </div>
