@@ -19,8 +19,10 @@ const App = () => {
   const queryClient = useQueryClient()
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+    onSuccess: (newBlog) => {
+      const blogs = queryClient.getQueryData(['blogs'])
+      queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
+      // queryClient.invalidateQueries({ queryKey: ['blogs'] })
     },
   })
 
@@ -31,6 +33,7 @@ const App = () => {
     const loggedUserJson = window.localStorage.getItem('loggedUser')
     if (loggedUserJson) {
       const user = JSON.parse(loggedUserJson)
+      blogService.setToken(user.token)
       setUser(user)
     }
   }, [])
@@ -65,6 +68,7 @@ const App = () => {
         username: username.value,
         password: password.value
       })
+      blogService.setToken(user.token)
       setUser(user)
       showNotification(`${user.name} logged in`, 'success')
       // store in browser's local storage
@@ -91,7 +95,7 @@ const App = () => {
     try {
       blogFormRef.current.toggleVisibility()
       // only authenticated users can add blogs
-      blogService.setToken(user.token)
+      // blogService.setToken(user.token)
       newBlogMutation.mutate(blogObject)
       showNotification(
         `a new blog ${blogObject.title} by ${blogObject.author} added`,
