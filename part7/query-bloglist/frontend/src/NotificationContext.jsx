@@ -37,4 +37,19 @@ export const useNotificationDispatch = () => {
   return notificationAndDispatch[1]
 }
 
+export const useNotification = (message, messageType) => {
+  const dispatch = useNotificationDispatch()
+  return (message, messageType) => {
+    dispatch({
+      type: 'show',
+      message: message,
+      messageType: messageType,
+    })
+
+    setTimeout(() => {
+      dispatch({ type: 'hide' })
+    }, 5000)
+  }
+}
+
 export default NotificationContext

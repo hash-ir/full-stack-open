@@ -7,15 +7,15 @@ import blogService from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import './index.css'
-import { useNotificationDispatch } from './NotificationContext'
+import { useNotification } from './NotificationContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useField } from './hooks/field'
 
 const App = () => {
+  const showNotification = useNotification()
   const username = useField('text')
   const password = useField('password')
   const [user, setUser] = useState(null)
-  const dispatch = useNotificationDispatch()
   const queryClient = useQueryClient()
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
@@ -48,18 +48,6 @@ const App = () => {
   }
 
   const blogs = result.data
-
-  const showNotification = (message, messageType) => {
-    dispatch({
-      type: 'show',
-      message: message,
-      messageType: messageType,
-    })
-
-    setTimeout(() => {
-      dispatch({ type: 'hide' })
-    }, 5000)
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -108,24 +96,24 @@ const App = () => {
 
   /* re-render the component when a blog is updated
   e.g., by clicking the 'like' button */
-  const updateBlogList = async () => {
-    const blogs = await blogService.getAll()
-    // setBlogs(blogs.sort((a, b) => b.likes - a.likes))
-  }
+  // const updateBlogList = async () => {
+  //   const blogs = await blogService.getAll()
+  //   // setBlogs(blogs.sort((a, b) => b.likes - a.likes))
+  // }
 
-  const removeBlog = async (id) => {
-    try {
-      // only authenticated users can remove blogs
-      blogService.setToken(user.token)
-      await blogService.remove(id)
-      updateBlogList()
-    } catch (error) {
-      console.error(
-        'Blog could not be added:',
-        error.response?.data || error.message
-      )
-    }
-  }
+  // const removeBlog = async (id) => {
+  //   try {
+  //     // only authenticated users can remove blogs
+  //     blogService.setToken(user.token)
+  //     await blogService.remove(id)
+  //     updateBlogList()
+  //   } catch (error) {
+  //     console.error(
+  //       'Blog could not be added:',
+  //       error.response?.data || error.message
+  //     )
+  //   }
+  // }
 
   if (user === null) {
     return (
@@ -153,8 +141,6 @@ const App = () => {
       </Togglable>
       <Blogs
         blogs={blogs}
-        updateBlogs={updateBlogList}
-        removeBlog={removeBlog}
         loggedUser={user}
       />
     </div>

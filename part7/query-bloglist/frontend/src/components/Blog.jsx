@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
-import PropTypes from 'prop-types'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '../NotificationContext'
 
 const Blog = ({ blog, loggedUser }) => {
+  const showNotification = useNotification()
   const [viewDetails, setViewDetails] = useState(false)
   // retrieve the existing QueryClient instance
   const queryClient = useQueryClient()
@@ -22,7 +23,7 @@ const Blog = ({ blog, loggedUser }) => {
     mutationFn: blogService.remove,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blogs'] })
-    }
+    },
   })
 
   const blogStyle = {
@@ -67,8 +68,14 @@ const Blog = ({ blog, loggedUser }) => {
     event.preventDefault()
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
       // removeBlog(blog.id)
-      // blogService.setToken()
-      deleteBlogMutation.mutate(blog.id)
+      deleteBlogMutation.mutate(blog.id, {
+        onSuccess: () => {
+          showNotification(`Removed ${blog.title} by ${blog.author}`, 'success')
+        },
+        onError: (error) => {
+          showNotification(error.response?.data || error.message, 'error')
+        },
+      })
     }
   }
 
@@ -91,13 +98,6 @@ const Blog = ({ blog, loggedUser }) => {
       )}
     </div>
   )
-}
-
-Blog.propTypes = {
-  blog: PropTypes.object.isRequired,
-  updateBlogs: PropTypes.func.isRequired,
-  removeBlog: PropTypes.func.isRequired,
-  loggedUser: PropTypes.object.isRequired,
 }
 
 export default Blog
