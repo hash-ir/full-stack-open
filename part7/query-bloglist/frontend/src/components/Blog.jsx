@@ -2,9 +2,11 @@ import { useState } from 'react'
 import blogService from '../services/blogs'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '../NotificationContext'
+import { useUserValue } from '../UserContext'
 
-const Blog = ({ blog, loggedUser }) => {
+const Blog = ({ blog }) => {
   const showNotification = useNotification()
+  const loggedUser = useUserValue()
   const [viewDetails, setViewDetails] = useState(false)
   // retrieve the existing QueryClient instance
   const queryClient = useQueryClient()
@@ -16,7 +18,6 @@ const Blog = ({ blog, loggedUser }) => {
         blog.id === updatedBlog.id ? updatedBlog : blog
       )
       queryClient.setQueryData(['blogs'], updatedBlogs)
-      // queryClient.invalidateQueries({ queryKey: ['blogs'] })
     },
   })
   const deleteBlogMutation = useMutation({
@@ -91,7 +92,7 @@ const Blog = ({ blog, loggedUser }) => {
           <span data-testid="likes">{blog.likes}</span>{' '}
           <button onClick={increaseLikes}>like</button> <br />
           {blog.user.name} <br />
-          {blog.user && blog.user.username === loggedUser.username && (
+          {loggedUser && blog.user.username === loggedUser.username && (
             <button onClick={remove}>remove</button>
           )}
         </div>

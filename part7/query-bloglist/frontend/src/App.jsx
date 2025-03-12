@@ -10,18 +10,29 @@ import './index.css'
 import { useNotification } from './NotificationContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useField } from './hooks/field'
+import { useLogin, useLogout, useUserDispatch, useUserValue } from './UserContext'
 
 const App = () => {
   const showNotification = useNotification()
+  const login = useLogin()
+  const logout = useLogout()
+  const user = useUserValue()
   const username = useField('text')
   const password = useField('password')
-  const [user, setUser] = useState(null)
   const queryClient = useQueryClient()
   const newBlogMutation = useMutation({
     mutationFn: blogService.create,
     onSuccess: (newBlog) => {
+      const populatedBlog = {
+        ...newBlog,
+        user: {
+          id: newBlog.user,
+          username: user.username,
+          name: user.name
+        }
+      }
       const blogs = queryClient.getQueryData(['blogs'])
-      queryClient.setQueryData(['blogs'], blogs.concat(newBlog))
+      queryClient.setQueryData(['blogs'], blogs.concat(populatedBlog))
       // queryClient.invalidateQueries({ queryKey: ['blogs'] })
     },
   })
@@ -34,7 +45,8 @@ const App = () => {
     if (loggedUserJson) {
       const user = JSON.parse(loggedUserJson)
       blogService.setToken(user.token)
-      setUser(user)
+      // setUser(user)
+      login(user)
     }
   }, [])
 
@@ -57,7 +69,8 @@ const App = () => {
         password: password.value
       })
       blogService.setToken(user.token)
-      setUser(user)
+      // setUser(user)
+      login(user)
       showNotification(`${user.name} logged in`, 'success')
       // store in browser's local storage
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
@@ -71,7 +84,8 @@ const App = () => {
     const loggedUserJson = window.localStorage.getItem('loggedUser')
     if (loggedUserJson || user) {
       window.localStorage.removeItem('loggedUser')
-      setUser(null)
+      // setUser(null)
+      logout()
       showNotification(`${user.name} successfully logged out`, 'success')
       // is `else` really needed?
     } else {
@@ -141,7 +155,6 @@ const App = () => {
       </Togglable>
       <Blogs
         blogs={blogs}
-        loggedUser={user}
       />
     </div>
   )
