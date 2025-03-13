@@ -8,6 +8,7 @@ import './index.css'
 import { useUserValue } from './UserContext'
 import { useInitAuth } from './hooks/initAuth'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import User from './components/User'
 
 const App = () => {
   const user = useUserValue()
@@ -36,6 +37,7 @@ const App = () => {
         </p>
         <Routes>
           <Route path="/users" element={<Users />} />
+          <Route path='/users/:id' element={<User />} />
           <Route
             path="/"
             element={
