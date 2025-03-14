@@ -1,5 +1,4 @@
-import { useParams } from 'react-router-dom'
-import { useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import blogService from '../services/blogs'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '../NotificationContext'
@@ -9,7 +8,8 @@ const Blog = () => {
   const id = useParams().id
   const showNotification = useNotification()
   const loggedUser = useUserValue()
-  const [viewDetails, setViewDetails] = useState(false)
+  // const [viewDetails, setViewDetails] = useState(false)
+  const navigate = useNavigate()
 
   // fetch the blog data by its id
   const result = useQuery({
@@ -97,9 +97,9 @@ const Blog = () => {
   const remove = (event) => {
     event.preventDefault()
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      // removeBlog(blog.id)
       deleteBlogMutation.mutate(blog.id, {
         onSuccess: () => {
+          navigate('/')
           showNotification(`Removed ${blog.title} by ${blog.author}`, 'success')
         },
         onError: (error) => {
