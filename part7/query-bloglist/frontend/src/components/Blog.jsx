@@ -1,18 +1,32 @@
+import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 import blogService from '../services/blogs'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '../NotificationContext'
 import { useUserValue } from '../UserContext'
 
-const Blog = ({ blog }) => {
+const Blog = () => {
+  const id = useParams().id
   const showNotification = useNotification()
   const loggedUser = useUserValue()
   const [viewDetails, setViewDetails] = useState(false)
-  // retrieve the existing QueryClient instance
+
+  // fetch the blog data by its id
+  const result = useQuery({
+    queryKey: ['blog', id],
+    queryFn: () => blogService.getById(id),
+    enabled: !!id,
+  })
+
   const queryClient = useQueryClient()
+
   const updateBlogMutation = useMutation({
     mutationFn: blogService.update,
     onSuccess: (updatedBlog) => {
+      // update this specific blog in the cache
+      queryClient.setQueryData(['blog', id], updatedBlog)
+
+      // also update the blogs list cache
       const blogs = queryClient.getQueryData(['blogs'])
       const updatedBlogs = blogs.map((blog) =>
         blog.id === updatedBlog.id ? updatedBlog : blog
@@ -20,6 +34,7 @@ const Blog = ({ blog }) => {
       queryClient.setQueryData(['blogs'], updatedBlogs)
     },
   })
+
   const deleteBlogMutation = useMutation({
     mutationFn: blogService.remove,
     onSuccess: () => {
@@ -27,15 +42,29 @@ const Blog = ({ blog }) => {
     },
   })
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
+  if (result.isLoading) {
+    return <div>loading blog...</div>
   }
 
-  const buttonLabel = viewDetails ? 'hide' : 'view'
+  if (result.isError) {
+    return <div>Error loading blog: {result.error.message}</div>
+  }
+
+  const blog = result.data
+
+  if (!blog) {
+    return <div>blog not found</div>
+  }
+
+  // const blogStyle = {
+  //   paddingTop: 10,
+  //   paddingLeft: 2,
+  //   border: 'solid',
+  //   borderWidth: 1,
+  //   marginBottom: 5,
+  // }
+
+  // const buttonLabel = viewDetails ? 'hide' : 'view'
 
   /* this works but if the like button is pressed too fast, the update
   is not equal to the number of times the button is pressed
@@ -81,22 +110,20 @@ const Blog = ({ blog }) => {
   }
 
   return (
-    <div style={blogStyle} className="blog">
-      {blog.title} {blog.author}
-      <button onClick={() => setViewDetails(!viewDetails)}>
-        {buttonLabel}
-      </button>
-      {viewDetails && (
-        <div className="blog-details">
-          {blog.url} <br />
-          <span data-testid="likes">{blog.likes}</span>{' '}
-          <button onClick={increaseLikes}>like</button> <br />
-          {blog.user.name} <br />
-          {loggedUser && blog.user.username === loggedUser.username && (
-            <button onClick={remove}>remove</button>
-          )}
-        </div>
-      )}
+    <div>
+      <h2>
+        {blog.title} {blog.author}
+      </h2>
+
+      <div className="blog-details">
+        <a href={`${blog.url}`}>{blog.url}</a> <br />
+        <span data-testid="likes">{blog.likes}</span>{' '}
+        <button onClick={increaseLikes}>like</button> <br />
+        added by {blog.user.name} <br />
+        {loggedUser && blog.user.username === loggedUser.username && (
+          <button onClick={remove}>remove</button>
+        )}
+      </div>
     </div>
   )
 }
