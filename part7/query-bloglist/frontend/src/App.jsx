@@ -19,27 +19,37 @@ const App = () => {
   if (user === null) {
     return (
       <div>
-        <h2>log in to application</h2>
         <Notification />
+        <h2>log in to application</h2>
         <LoginForm />
       </div>
     )
+  }
+
+  const padding = {
+    padding: 5,
   }
 
   // blog list page
   return (
     <Router>
       <div>
-        <h2>blogs</h2>
+        <Link style={padding} to="/">
+          blogs
+        </Link>
+        <Link style={padding} to="/users">
+          users
+        </Link>
+        <em style={padding}>{user.name} logged in</em>
+        <LogoutButton />
+      </div>
+      <div>
         <Notification />
-        <p>
-          {user.name} logged in
-          <LogoutButton />
-        </p>
+        <h2>blog app</h2>
         <Routes>
           <Route path="/users" element={<Users />} />
-          <Route path='/users/:id' element={<User />} />
-          <Route path='/blogs/:id' element={<Blog />} />
+          <Route path="/users/:id" element={<User />} />
+          <Route path="/blogs/:id" element={<Blog />} />
           <Route
             path="/"
             element={
