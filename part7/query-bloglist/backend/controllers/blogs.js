@@ -1,5 +1,6 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const { addCommentsFieldToAllDocuments } = require('./updateDatabase')
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 })
@@ -12,6 +13,11 @@ blogsRouter.get('/:id', async (request, response) => {
     name: 1,
   })
   response.json(blog)
+})
+
+blogsRouter.get('/:id/comments', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+  response.json(blog.comments)
 })
 
 blogsRouter.post('/', async (request, response) => {
