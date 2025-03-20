@@ -8,17 +8,22 @@ const Blog = () => {
   const id = useParams().id
   const showNotification = useNotification()
   const loggedUser = useUserValue()
+  const queryClient = useQueryClient()
   // const [viewDetails, setViewDetails] = useState(false)
   const navigate = useNavigate()
 
   // fetch the blog data by its id
-  const result = useQuery({
+  const blogQuery = useQuery({
     queryKey: ['blog', id],
     queryFn: () => blogService.getById(id),
     enabled: !!id,
   })
 
-  const queryClient = useQueryClient()
+  const blogCommentsQuery = useQuery({
+    queryKey: ['blog', id, 'comments'],
+    queryFn: () => blogService.getComments(id),
+    enabled: !!id,
+  })
 
   const updateBlogMutation = useMutation({
     mutationFn: blogService.update,
@@ -42,15 +47,15 @@ const Blog = () => {
     },
   })
 
-  if (result.isLoading) {
+  if (blogQuery.isLoading) {
     return <div>loading blog...</div>
   }
 
-  if (result.isError) {
-    return <div>Error loading blog: {result.error.message}</div>
+  if (blogQuery.isError) {
+    return <div>Error loading blog: {blogQuery.error.message}</div>
   }
 
-  const blog = result.data
+  const blog = blogQuery.data
 
   if (!blog) {
     return <div>blog not found</div>
@@ -123,6 +128,14 @@ const Blog = () => {
         {loggedUser && blog.user.username === loggedUser.username && (
           <button onClick={remove}>remove</button>
         )}
+      </div>
+      <div>
+        <h3>comments</h3>
+        <ul>
+          {blog.comments.map((comment) => (
+            <li key={comment.id}>{comment}</li>
+          ))}
+        </ul>
       </div>
     </div>
   )
