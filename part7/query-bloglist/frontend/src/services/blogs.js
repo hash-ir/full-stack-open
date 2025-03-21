@@ -30,6 +30,11 @@ const create = async (blog) => {
   return response.data
 }
 
+const addComment = async (id, comments) => {
+  const response = await axios.put(`${baseUrl}/${id}/comments`, { comments })
+  return response.data
+}
+
 const update = async (blog) => {
   const response = await axios.put(`${baseUrl}/${blog.id}`, blog)
   return response.data
@@ -48,6 +53,7 @@ export default {
   getById,
   getComments,
   create,
+  addComment,
   setToken,
   update,
   remove,

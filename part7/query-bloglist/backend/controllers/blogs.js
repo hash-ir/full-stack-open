@@ -82,12 +82,22 @@ blogsRouter.put('/:id', async (request, response) => {
 })
 
 blogsRouter.put('/:id/comments', async (request, response) => {
-  const comments = request.body
+  const { comments } = request.body
 
-  const blog = await Blog.findByIdAndUpdate(request.params.id, {
-    $set: { comments: comments },
-  }).populate('user', { username: 1, name: 1 })
-  response.status(201).json(blog)
+  try {
+    const commentedBlog = await Blog.findByIdAndUpdate(
+      request.params.id,
+      {
+        $set: { comments: comments },
+      },
+      { new: true }
+    )
+
+    response.status(201).json(commentedBlog)
+  } catch (error) {
+    console.error('Error updating comments')
+    response.status(400).json({ error: error.message })
+  }
 })
 
 module.exports = blogsRouter

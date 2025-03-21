@@ -3,12 +3,14 @@ import blogService from '../services/blogs'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '../NotificationContext'
 import { useUserValue } from '../UserContext'
+import { useField } from '../hooks/field'
 
 const Blog = () => {
   const id = useParams().id
   const showNotification = useNotification()
   const loggedUser = useUserValue()
   const queryClient = useQueryClient()
+  const comment = useField('text')
   // const [viewDetails, setViewDetails] = useState(false)
   const navigate = useNavigate()
 
@@ -16,12 +18,6 @@ const Blog = () => {
   const blogQuery = useQuery({
     queryKey: ['blog', id],
     queryFn: () => blogService.getById(id),
-    enabled: !!id,
-  })
-
-  const blogCommentsQuery = useQuery({
-    queryKey: ['blog', id, 'comments'],
-    queryFn: () => blogService.getComments(id),
     enabled: !!id,
   })
 
@@ -114,6 +110,13 @@ const Blog = () => {
     }
   }
 
+  const handleComment = () => {
+    const updatedComments = [...blog.comments, comment.value]
+    blogService.addComment(id, updatedComments).then((updatedBlog) => {
+      updateBlogMutation.mutate(updatedBlog)
+    })
+  }
+
   return (
     <div>
       <h2>
@@ -131,9 +134,11 @@ const Blog = () => {
       </div>
       <div>
         <h3>comments</h3>
+        <input {...comment} placeholder="add comment here" />
+        <button onClick={handleComment}>add comment</button>
         <ul>
-          {blog.comments.map((comment) => (
-            <li key={comment.id}>{comment}</li>
+          {blog.comments.map((comment, index) => (
+            <li key={index}>{comment}</li>
           ))}
         </ul>
       </div>
