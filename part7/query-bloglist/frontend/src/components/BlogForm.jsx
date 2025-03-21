@@ -38,13 +38,6 @@ const BlogForm = () => {
       author: author.value,
       url: url.value,
     })
-
-    // // Reset the form
-    // setNewBlog({
-    //   title: '',
-    //   author: '',
-    //   url: ''
-    // })
   }
 
   const addBlog = async (blogObject) => {

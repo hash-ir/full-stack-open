@@ -11,7 +11,6 @@ const Blog = () => {
   const loggedUser = useUserValue()
   const queryClient = useQueryClient()
   const comment = useField('text')
-  // const [viewDetails, setViewDetails] = useState(false)
   const navigate = useNavigate()
 
   // fetch the blog data by its id
@@ -57,40 +56,8 @@ const Blog = () => {
     return <div>blog not found</div>
   }
 
-  // const blogStyle = {
-  //   paddingTop: 10,
-  //   paddingLeft: 2,
-  //   border: 'solid',
-  //   borderWidth: 1,
-  //   marginBottom: 5,
-  // }
-
-  // const buttonLabel = viewDetails ? 'hide' : 'view'
-
-  /* this works but if the like button is pressed too fast, the update
-  is not equal to the number of times the button is pressed
-  TODO: implement a fix! */
   const increaseLikes = async (event) => {
     event.preventDefault()
-    // const updatedBlog = {
-    //   ...localBlog,
-    //   likes: localBlog.likes + 1,
-    //   /* set the user id here explicitly to avoid mongoose schema
-    //   violation when using the `$set` update method */
-    //   user: localBlog.user.id
-    // }
-
-    // const returnedBlog = await blogService.updateLikes(blog.id, updatedBlog)
-    // // required to update the likes displayed
-    // setLocalBlog(returnedBlog)
-
-    // /* signal to parent to update the blogs list (which will include
-    // the new updates) */
-    // if (updateBlogs) {
-    //   await updateBlogs()
-    // }
-    // use just the ID instead of the full user object to avoid
-    // mongoose schema violation
     const updatedBlog = { ...blog, likes: blog.likes + 1, user: blog.user.id }
     updateBlogMutation.mutate(updatedBlog)
   }
