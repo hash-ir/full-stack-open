@@ -24,7 +24,10 @@ const LoginForm = () => {
       // store in browser's local storage
       window.localStorage.setItem('loggedUser', JSON.stringify(user))
     } catch (error) {
-      showNotification(error.response?.data || error.message, 'error')
+      showNotification(
+        error.response?.data?.error || error.response?.data || error.message,
+        'error'
+      )
     }
   }
 

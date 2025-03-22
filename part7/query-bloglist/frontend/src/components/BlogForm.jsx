@@ -51,7 +51,10 @@ const BlogForm = () => {
         'success'
       )
     } catch (error) {
-      showNotification(error.response?.data || error.message, 'error')
+      showNotification(
+        error.response?.data?.error || error.response?.data || error.message,
+        'error'
+      )
     }
   }
 

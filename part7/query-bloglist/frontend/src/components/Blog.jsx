@@ -71,7 +71,12 @@ const Blog = () => {
           showNotification(`Removed ${blog.title} by ${blog.author}`, 'success')
         },
         onError: (error) => {
-          showNotification(error.response?.data || error.message, 'error')
+          showNotification(
+            error.response?.data?.error ||
+              error.response?.data ||
+              error.message,
+            'error'
+          )
         },
       })
     }
