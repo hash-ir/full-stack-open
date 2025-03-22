@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import { useNotification } from '../NotificationContext'
 import Togglable from './Togglable'
+import { Form, Button } from 'react-bootstrap'
 
 const BlogForm = () => {
   const showNotification = useNotification()
@@ -56,27 +57,34 @@ const BlogForm = () => {
 
   return (
     <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-      <form onSubmit={handleSubmit}>
+      <Form onSubmit={handleSubmit}>
         <h2>create new</h2>
-        <div>
-          title
-          <input {...title} name="Title" id="blog-title" data-testid="title" />
-        </div>
-        <div>
-          author
-          <input
+        <Form.Group>
+          <Form.Label>title</Form.Label>
+          <Form.Control
+            {...title}
+            name="Title"
+            id="blog-title"
+            data-testid="title"
+          />
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>author</Form.Label>
+          <Form.Control
             {...author}
             name="Author"
             id="blog-author"
             data-testid="author"
           />
-        </div>
-        <div>
-          url
-          <input {...url} name="URL" id="blog-url" data-testid="url" />
-        </div>
-        <button type="submit">create</button>
-      </form>
+        </Form.Group>
+        <Form.Group>
+          <Form.Label>url</Form.Label>
+          <Form.Control {...url} name="URL" id="blog-url" data-testid="url" />
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          create
+        </Button>
+      </Form>
     </Togglable>
   )
 }

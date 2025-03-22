@@ -10,6 +10,7 @@ import { useInitAuth } from './hooks/initAuth'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import User from './components/User'
 import Blog from './components/Blog'
+import { Nav, Navbar } from 'react-bootstrap'
 
 const App = () => {
   const user = useUserValue()
@@ -18,7 +19,7 @@ const App = () => {
   // login page
   if (user === null) {
     return (
-      <div>
+      <div className="container">
         <Notification />
         <h2>log in to application</h2>
         <LoginForm />
@@ -33,17 +34,30 @@ const App = () => {
   // blog list page
   return (
     <Router>
-      <div>
-        <Link style={padding} to="/">
-          blogs
-        </Link>
-        <Link style={padding} to="/users">
-          users
-        </Link>
-        <em style={padding}>{user.name} logged in</em>
-        <LogoutButton />
-      </div>
-      <div>
+      <div className="container">
+        <Navbar collapseOnSelect expand="lg" className="bg-body-tertiary">
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/">
+                  blogs
+                </Link>
+              </Nav.Link>
+              <Nav.Link href="#" as="span">
+                <Link style={padding} to="/users">
+                  users
+                </Link>
+              </Nav.Link>
+              <Nav.Link href="#" as="span">
+                <em style={padding}>{user.name} logged in</em>
+              </Nav.Link>
+              <Nav.Link href="#" as="span">
+                <LogoutButton />
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Navbar>
         <Notification />
         <h2>blog app</h2>
         <Routes>

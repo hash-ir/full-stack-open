@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import blogService from '../services/blogs'
 import { Link } from 'react-router-dom'
+import { Table } from 'react-bootstrap'
 
 const Blogs = () => {
   const result = useQuery({
@@ -14,23 +15,20 @@ const Blogs = () => {
 
   const blogs = result.data
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5,
-  }
-
   return (
     <div>
-      {blogs.map((blog) => (
-        <div key={blog.id} style={blogStyle} className="blog">
-          <Link key={blog.id} to={`/blogs/${blog.id}`}>
-            {blog.title} {blog.author}
-          </Link>
-        </div>
-      ))}
+      <Table hover>
+        <tbody>
+          {blogs.map((blog) => (
+            <tr key={blog.id}>
+              <td>
+                <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+              </td>
+              <td>{blog.author}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </div>
   )
 }
