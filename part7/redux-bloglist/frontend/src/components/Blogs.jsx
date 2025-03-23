@@ -1,29 +1,15 @@
-import { useSelector } from "react-redux";
-import Blog from "./Blog";
-import PropTypes from "prop-types";
+import { useSelector } from 'react-redux'
+import Blog from './Blog'
 
 const Blogs = ({ loggedUser }) => {
-  const blogs = useSelector(state => state.blogs)
+  const blogs = useSelector((state) => state.blogs)
   return (
     <div>
       {blogs.map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          // synchronize local blog updates with parent
-          // updateBlogs={updateBlogs}
-          // removeBlog={removeBlog}
-          loggedUser={loggedUser}
-        />
+        <Blog key={blog.id} blog={blog} loggedUser={loggedUser} />
       ))}
     </div>
-  );
-};
+  )
+}
 
-Blogs.propTypes = {
-  // updateBlogs: PropTypes.func.isRequired,
-  // removeBlog: PropTypes.func.isRequired,
-  loggedUser: PropTypes.object.isRequired,
-};
-
-export default Blogs;
+export default Blogs

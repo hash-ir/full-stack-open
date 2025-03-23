@@ -1,86 +1,63 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import Blogs from "./components/Blogs";
-import LoginForm from "./components/LoginForm";
-import BlogForm from "./components/BlogForm";
-import Togglable from "./components/Togglable";
-import blogService from "./services/blogs";
-// import loginService from "./services/login";
-import Notification from "./components/Notification";
-import { setNotification } from "./reducers/notificationReducer";
-import "./index.css";
-import { createBlog, initializeBlogs } from "./reducers/blogReducer";
-import { login, logout, setUser } from "./reducers/userReducer";
+import Blogs from './components/Blogs'
+import LoginForm from './components/LoginForm'
+import BlogForm from './components/BlogForm'
+import Togglable from './components/Togglable'
+import blogService from './services/blogs'
+import Notification from './components/Notification'
+import { setNotification } from './reducers/notificationReducer'
+import './index.css'
+import { createBlog, initializeBlogs } from './reducers/blogReducer'
+import { login, logout, setUser } from './reducers/userReducer'
 
 const App = () => {
-  // const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  // const [user, setUser] = useState(null);
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const dispatch = useDispatch()
-  const user = useSelector(state => state.user)
+  const user = useSelector((state) => state.user)
   // control BlogForm component visibility from outside
-  const blogFormRef = useRef();
+  const blogFormRef = useRef()
 
   useEffect(() => {
-    const loggedUserJson = window.localStorage.getItem("loggedUser");
+    const loggedUserJson = window.localStorage.getItem('loggedUser')
     if (loggedUserJson) {
-      const user = JSON.parse(loggedUserJson);
-      // setUser(user);
+      const user = JSON.parse(loggedUserJson)
       dispatch(setUser(user))
     }
     dispatch(initializeBlogs())
-  }, []);
+  }, [])
 
   const handleLogin = async (event) => {
-    event.preventDefault();
-    // const user = await loginService.login({ username, password });
-    // setUser(user);
+    event.preventDefault()
     dispatch(login(username, password))
-    setUsername("");
-    setPassword("");
-  };
+    setUsername('')
+    setPassword('')
+  }
 
   const handleLogout = async (event) => {
-    event.preventDefault();
+    event.preventDefault()
     dispatch(logout())
-  };
+  }
 
   const addBlog = async (blogObject) => {
     try {
-      blogFormRef.current.toggleVisibility();
+      blogFormRef.current.toggleVisibility()
       // only authenticated users can add blogs
-      blogService.setToken(user.token);
+      blogService.setToken(user.token)
       dispatch(createBlog(blogObject))
-      dispatch(setNotification(
-        `a new blog ${blogObject.title} by ${blogObject.author} added`,
-        "success",
-      ));
+      dispatch(
+        setNotification(
+          `a new blog ${blogObject.title} by ${blogObject.author} added`,
+          'success'
+        )
+      )
     } catch (error) {
-      const errorMessage = error.response ? error.response.data : error.message;
-      dispatch(setNotification(errorMessage["error"], "error"));
-      console.error("Blog could not be added:", errorMessage);
+      const errorMessage = error.response ? error.response.data : error.message
+      dispatch(setNotification(errorMessage['error'], 'error'))
+      console.error('Blog could not be added:', errorMessage)
     }
-  };
-
-  /* re-render the component when a blog is updated
-  e.g., by clicking the 'like' button */
-  // const updateBlogList = async () => {
-  //   const blogs = await blogService.getAll();
-  //   setBlogs(blogs.sort((a, b) => b.likes - a.likes));
-  // };
-
-  // const removeBlog = async (id) => {
-  //   try {
-  //     // only authenticated users can remove blogs
-  //     blogService.setToken(user.token);
-  //     await blogService.remove(id);
-  //     updateBlogList();
-  //   } catch (error) {
-  //     const errorMessage = error.response ? error.response.data : error.message;
-  //     console.error("Blog could not be added:", errorMessage);
-  //   }
-  // };
+  }
 
   if (user === null) {
     return (
@@ -93,7 +70,7 @@ const App = () => {
           handleLogin={handleLogin}
         />
       </div>
-    );
+    )
   }
 
   return (
@@ -107,13 +84,9 @@ const App = () => {
       <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm createBlog={addBlog} />
       </Togglable>
-      <Blogs
-        // updateBlogs={updateBlogList}
-        // removeBlog={removeBlog}
-        loggedUser={user}
-      />
+      <Blogs loggedUser={user} />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App

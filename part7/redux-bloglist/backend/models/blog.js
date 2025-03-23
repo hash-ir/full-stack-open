@@ -7,8 +7,8 @@ const blogSchema = new mongoose.Schema({
   likes: Number,
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }
+    ref: 'User',
+  },
 })
 
 /* the following schema rules are used for sending a formatted response
@@ -20,7 +20,7 @@ blogSchema.set('toJSON', {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
-  }
+  },
 })
 
 blogSchema.set('toObject', {
@@ -28,7 +28,7 @@ blogSchema.set('toObject', {
     returnedObject.id = returnedObject._id.toString()
     delete returnedObject._id
     delete returnedObject.__v
-  }
+  },
 })
 
 module.exports = mongoose.model('Blog', blogSchema)
