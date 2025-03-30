@@ -1,9 +1,8 @@
-const Books = (props) => {
-  if (!props.show) {
+/* eslint-disable react/prop-types */
+const Books = ({ show, books }) => {
+  if (!show) {
     return null
   }
-
-  const books = []
 
   return (
     <div>
