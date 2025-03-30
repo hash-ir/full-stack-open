@@ -1,8 +1,8 @@
-const Authors = (props) => {
-  if (!props.show) {
+/* eslint-disable react/prop-types */
+const Authors = ({ show, authors }) => {
+  if (!show) {
     return null
   }
-  const authors = []
 
   return (
     <div>
