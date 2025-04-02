@@ -1,13 +1,14 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react'
 
-const NewBook = (props) => {
+const NewBook = ({ show, addBook }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
 
-  if (!props.show) {
+  if (!show) {
     return null
   }
 
@@ -15,6 +16,9 @@ const NewBook = (props) => {
     event.preventDefault()
 
     console.log('add book...')
+    addBook({
+      variables: { title, author, published: parseInt(published), genres },
+    })
 
     setTitle('')
     setPublished('')

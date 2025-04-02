@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useMutation, useQuery } from '@apollo/client'
 
 const ALL_AUTHORS = gql`
   query {
@@ -24,17 +24,49 @@ const ALL_BOOKS = gql`
   }
 `
 
+const CREATE_BOOK = gql`
+  mutation createBook(
+    $title: String!
+    $author: String!
+    $published: Int!
+    $genres: [String!]!
+  ) {
+    addBook(
+      title: $title
+      author: $author
+      published: $published
+      genres: $genres
+    ) {
+      title
+      author
+      published
+      genres
+    }
+  }
+`
+
 const App = () => {
   const [page, setPage] = useState('authors')
-  const authors = useQuery(ALL_AUTHORS)
-  const books = useQuery(ALL_BOOKS)
+  const {
+    loading: authorsLoading,
+    data: authorsData,
+    error: authorsError,
+  } = useQuery(ALL_AUTHORS)
+  const {
+    loading: booksLoading,
+    data: booksData,
+    error: booksError,
+  } = useQuery(ALL_BOOKS)
+  const [createBook] = useMutation(CREATE_BOOK, {
+    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+  })
 
-  if (authors.loading) {
-    return <div>loading authors...</div>
+  if (authorsLoading || booksLoading) {
+    return <div>loading data...</div>
   }
 
-  if (books.loading) {
-    return <div>loading books...</div>
+  if (!authorsData || !booksData) {
+    return <div>No data available</div>
   }
 
   return (
@@ -45,11 +77,11 @@ const App = () => {
         <button onClick={() => setPage('add')}>add book</button>
       </div>
 
-      <Authors show={page === 'authors'} authors={authors.data.allAuthors} />
+      <Authors show={page === 'authors'} authors={authorsData.allAuthors} />
 
-      <Books show={page === 'books'} books={books.data.allBooks} />
+      <Books show={page === 'books'} books={booksData.allBooks} />
 
-      <NewBook show={page === 'add'} />
+      <NewBook show={page === 'add'} addBook={createBook} />
     </div>
   )
 }
