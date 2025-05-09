@@ -1,6 +1,7 @@
 require('dotenv').config()
 const { ApolloServer } = require('@apollo/server')
 const { startStandaloneServer } = require('@apollo/server/standalone')
+const { GraphQLError } = require('graphql')
 const Book = require('./models/book')
 const Author = require('./models/author')
 const mongoose = require('mongoose')
@@ -202,7 +203,7 @@ const resolvers = {
         return Book.findById(book._id).populate('author')
       } catch (error) {
         console.log('Error adding book:', error.message)
-        throw new Error(error.message)
+        throw new GraphQLError(error.message)
       }
     },
     editAuthor: async (root, args) => {
