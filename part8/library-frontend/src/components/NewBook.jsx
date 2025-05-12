@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react'
 
-const NewBook = ({ show, addBook }) => {
+const NewBook = ({ show, addBook, setPage }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [published, setPublished] = useState('')
@@ -25,6 +25,7 @@ const NewBook = ({ show, addBook }) => {
     setAuthor('')
     setGenres([])
     setGenre('')
+    setPage('books')
   }
 
   const addGenre = () => {

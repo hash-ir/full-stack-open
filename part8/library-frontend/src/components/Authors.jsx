@@ -10,11 +10,15 @@ const Authors = ({ show, authors, updateAuthor }) => {
   }
 
   const submit = async (event) => {
-    event.preventDefault()
-    updateAuthor({ variables: { name, birthyear: parseInt(birthyear) } })
+    try {
+      event.preventDefault()
+      updateAuthor({ variables: { name, birthyear: parseInt(birthyear) } })
 
-    setName('')
-    setBirthYear('')
+      setName('')
+      setBirthYear('')
+    } catch (error) {
+      console.error('Error updating author:', error)
+    }
   }
 
   return (

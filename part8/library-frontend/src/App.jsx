@@ -2,62 +2,15 @@ import { useState } from 'react'
 import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
-import { gql, useMutation, useQuery } from '@apollo/client'
-
-const ALL_AUTHORS = gql`
-  query {
-    allAuthors {
-      name
-      born
-      bookCount
-    }
-  }
-`
-
-const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      published
-      author {
-        name
-      }
-    }
-  }
-`
-
-const CREATE_BOOK = gql`
-  mutation createBook(
-    $title: String!
-    $author: String!
-    $published: Int!
-    $genres: [String!]!
-  ) {
-    addBook(
-      title: $title
-      author: $author
-      published: $published
-      genres: $genres
-    ) {
-      title
-      author
-      published
-      genres
-    }
-  }
-`
-
-const EDIT_AUTHOR = gql`
-  mutation editAuthor($name: String!, $birthyear: Int!) {
-    editAuthor(name: $name, setBornTo: $birthyear) {
-      name
-      born
-    }
-  }
-`
+import { useApolloClient, useMutation, useQuery } from '@apollo/client'
+import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK, EDIT_AUTHOR } from './queries'
+import LoginForm from './components/LoginForm'
 
 const App = () => {
+  const [token, setToken] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
   const [page, setPage] = useState('authors')
+  const client = useApolloClient()
   const { loading: authorsLoading, data: authorsData } = useQuery(ALL_AUTHORS)
   const { loading: booksLoading, data: booksData } = useQuery(ALL_BOOKS)
   const [createBook] = useMutation(CREATE_BOOK, {
@@ -75,12 +28,45 @@ const App = () => {
     return <div>No data available</div>
   }
 
+  const logout = () => {
+    setToken(null)
+    localStorage.clear()
+    client.resetStore()
+  }
+
+  if (!token) {
+    return (
+      <div>
+        <div>
+          <button onClick={() => setPage('authors')}>authors</button>
+          <button onClick={() => setPage('books')}>books</button>
+          <button onClick={() => setPage('login')}>login</button>
+        </div>
+
+        <Authors
+          show={page === 'authors'}
+          authors={authorsData.allAuthors}
+          updateAuthor={editAuthor}
+        />
+
+        <Books show={page === 'books'} books={booksData.allBooks} />
+        <LoginForm
+          show={page === 'login'}
+          setToken={setToken}
+          setError={setErrorMessage}
+          setPage={setPage}
+        />
+      </div>
+    )
+  }
+
   return (
     <div>
       <div>
         <button onClick={() => setPage('authors')}>authors</button>
         <button onClick={() => setPage('books')}>books</button>
         <button onClick={() => setPage('add')}>add book</button>
+        <button onClick={logout}>logout</button>
       </div>
 
       <Authors
@@ -91,7 +77,7 @@ const App = () => {
 
       <Books show={page === 'books'} books={booksData.allBooks} />
 
-      <NewBook show={page === 'add'} addBook={createBook} />
+      <NewBook show={page === 'add'} addBook={createBook} setPage={setPage} />
     </div>
   )
 }
