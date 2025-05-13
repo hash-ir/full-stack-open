@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client'
 import { useState, useEffect } from 'react'
 import { LOGIN } from '../queries'
 
+/* eslint-disable react/prop-types */
 const LoginForm = ({ show, setError, setToken, setPage }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')

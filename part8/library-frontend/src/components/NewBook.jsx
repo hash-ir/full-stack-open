@@ -1,6 +1,6 @@
-/* eslint-disable react/prop-types */
 import { useState } from 'react'
 
+/* eslint-disable react/prop-types */
 const NewBook = ({ show, addBook, setPage }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
