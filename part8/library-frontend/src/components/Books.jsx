@@ -1,47 +1,71 @@
 import { useState } from 'react'
-import { BOOKS_BY_GENRE } from '../queries'
+import { ALL_BOOKS, BOOKS_BY_GENRE } from '../queries'
 import { useQuery } from '@apollo/client'
+import { useEffect } from 'react'
 
 /* eslint-disable react/prop-types */
-const Books = ({ show, books }) => {
+const Books = ({ show }) => {
   const [selectedGenre, setSelectedGenre] = useState('all genres')
 
-  const getUniqueGenres = () => {
-    const allGenres = new Set(['all genres'])
+  // Query for all books (for genre list and all genres view)
+  const {
+    loading: allBooksLoading,
+    data: allBooksData,
+    refetch: refetchAllBooks,
+  } = useQuery(ALL_BOOKS)
 
-    books?.forEach((book) => {
-      if (Array.isArray(book.genres)) {
-        book.genres.forEach((genre) => {
-          if (genre) allGenres.add(genre)
-        })
+  const genre = selectedGenre === 'all genres' ? null : selectedGenre
+  const {
+    loading: filteredBooksLoading,
+    data: filteredBooksData,
+    refetch: refetchFilteredBooks,
+  } = useQuery(BOOKS_BY_GENRE, {
+    variables: { genre },
+    skip: selectedGenre === 'all genres', // Skip this query for all genres
+  })
+
+  useEffect(() => {
+    if (show) {
+      refetchAllBooks()
+      if (selectedGenre !== 'all genres') {
+        refetchFilteredBooks()
       }
-    })
-
-    return Array.from(allGenres)
-  }
-
-  const genre = selectedGenre === 'all genres' ? '' : selectedGenre
-  const { loading: filteredBooksLoading, data: filteredBooksData } = useQuery(
-    BOOKS_BY_GENRE,
-    {
-      variables: { genre },
     }
-  )
-  if (filteredBooksLoading) {
-    return <div>loading books by genre {selectedGenre}</div>
-  }
-
-  if (!filteredBooksData || !filteredBooksData.allBooks) {
-    return <div>No books found with genre {selectedGenre}</div>
-  }
-
-  const filteredBooks = filteredBooksData.allBooks
+  }, [show, selectedGenre, refetchAllBooks, refetchFilteredBooks])
 
   if (!show) {
     return null
   }
 
-  const uniqueGenres = getUniqueGenres(books)
+  if (
+    allBooksLoading ||
+    (filteredBooksLoading && selectedGenre !== 'all genres')
+  ) {
+    return <div>Loading books...</div>
+  }
+
+  const displayBooks =
+    selectedGenre === 'all genres'
+      ? allBooksData?.allBooks || []
+      : filteredBooksData?.allBooks || []
+
+  const getUniqueGenres = () => {
+    const allGenres = new Set(['all genres'])
+
+    if (allBooksData && allBooksData.allBooks) {
+      allBooksData.allBooks.forEach((book) => {
+        if (Array.isArray(book.genres)) {
+          book.genres.forEach((genre) => {
+            if (genre) allGenres.add(genre)
+          })
+        }
+      })
+    }
+
+    return Array.from(allGenres)
+  }
+
+  const uniqueGenres = getUniqueGenres()
 
   return (
     <div>
@@ -57,8 +81,8 @@ const Books = ({ show, books }) => {
             <th>author</th>
             <th>published</th>
           </tr>
-          {filteredBooks && filteredBooks.length > 0 ? (
-            filteredBooks.map((book) => (
+          {displayBooks.length > 0 ? (
+            displayBooks.map((book) => (
               <tr key={book.title}>
                 <td>{book.title}</td>
                 <td>{book.author.name}</td>

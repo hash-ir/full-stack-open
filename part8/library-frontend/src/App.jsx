@@ -51,7 +51,7 @@ const App = () => {
           updateAuthor={editAuthor}
         />
 
-        <Books show={page === 'books'} books={booksData.allBooks} />
+        <Books show={page === 'books'} />
         <LoginForm
           show={page === 'login'}
           setToken={setToken}
