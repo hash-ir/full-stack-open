@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { BOOKS_BY_GENRE } from '../queries'
+import { useQuery } from '@apollo/client'
 
 /* eslint-disable react/prop-types */
 const Books = ({ show, books }) => {
@@ -18,10 +20,22 @@ const Books = ({ show, books }) => {
     return Array.from(allGenres)
   }
 
-  const filteredBooks =
-    selectedGenre === 'all genres'
-      ? books
-      : books?.filter((book) => book.genres.includes(selectedGenre))
+  const genre = selectedGenre === 'all genres' ? '' : selectedGenre
+  const { loading: filteredBooksLoading, data: filteredBooksData } = useQuery(
+    BOOKS_BY_GENRE,
+    {
+      variables: { genre },
+    }
+  )
+  if (filteredBooksLoading) {
+    return <div>loading books by genre {selectedGenre}</div>
+  }
+
+  if (!filteredBooksData || !filteredBooksData.allBooks) {
+    return <div>No books found with genre {selectedGenre}</div>
+  }
+
+  const filteredBooks = filteredBooksData.allBooks
 
   if (!show) {
     return null
