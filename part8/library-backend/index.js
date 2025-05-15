@@ -11,7 +11,9 @@ const http = require('http')
 const { WebSocketServer } = require('ws')
 const { useServer } = require('graphql-ws/use/ws')
 const User = require('./models/user')
+const Book = require('./models/book')
 const jwt = require('jsonwebtoken')
+const DataLoader = require('dataloader')
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 
@@ -28,6 +30,31 @@ mongoose
   .catch((error) => {
     console.log('error connecting to MongoDB:', error.message)
   })
+
+const batchBookCounts = async (authorIds) => {
+  const counts = await Book.aggregate([
+    {
+      $match: {
+        author: {
+          $in: authorIds.map(
+            (id) => new mongoose.Types.ObjectId(id.toString())
+          ),
+        },
+      },
+    },
+    { $group: { _id: '$author', count: { $sum: 1 } } },
+  ])
+
+  const countMap = {}
+  counts.forEach((result) => {
+    countMap[result._id.toString()] = result.count
+  })
+
+  return authorIds.map((id) => {
+    const count = countMap[id.toString()] || 0
+    return count
+  })
+}
 
 const start = async () => {
   const app = express()
@@ -65,6 +92,8 @@ const start = async () => {
     express.json(),
     expressMiddleware(server, {
       context: async ({ req }) => {
+        const bookCountLoader = new DataLoader(batchBookCounts)
+
         const auth = req ? req.headers.authorization : null
         if (auth && auth.startsWith('Bearer ')) {
           const decodedToken = jwt.verify(
@@ -72,8 +101,10 @@ const start = async () => {
             process.env.JWT_SECRET
           )
           const currentUser = await User.findById(decodedToken.id)
-          return { currentUser }
+          return { currentUser, bookCountLoader }
         }
+
+        return { bookCountLoader }
       },
     })
   )

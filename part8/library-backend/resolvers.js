@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const Book = require('./models/book')
 const Author = require('./models/author')
 const User = require('./models/user')
+const DataLoader = require('dataloader')
 const { PubSub } = require('graphql-subscriptions')
 const pubsub = new PubSub()
 
@@ -28,15 +29,22 @@ const resolvers = {
         return await Book.find({ genres: args.genre }).populate('author')
       }
     },
-    allAuthors: async () => await Author.find({}),
+    allAuthors: async () => {
+      console.log('Author.find')
+      return await Author.find({})
+    },
     me: (root, args, context) => {
       return context.currentUser
     },
   },
 
   Author: {
-    bookCount: async (root) => {
-      const count = await Book.countDocuments({ author: root._id })
+    bookCount: async (root, args, context) => {
+      // const count = await Book.countDocuments({ author: root._id })
+      // console.log('Book count')
+      // return count
+      const count = await context.bookCountLoader.load(root._id)
+      console.log(`Got book count for author ${root.name}: ${count}`)
       return count
     },
   },
