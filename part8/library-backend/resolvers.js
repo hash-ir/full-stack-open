@@ -78,11 +78,21 @@ const resolvers = {
 
         await book.save()
 
+        // First retrieve the populated book to get complete data
+        const populatedBook = await Book.findById(book._id).populate('author')
+
+        // Convert to plain object after populating
+        const bookObject = populatedBook.toObject
+          ? populatedBook.toObject()
+          : populatedBook
+
+        // Now published the fully populated, plain object
         pubsub.publish('BOOK_ADDED', {
-          bookAdded: Book.findById(book._id).populate('author'),
+          bookAdded: bookObject,
         })
 
-        return Book.findById(book._id).populate('author')
+        // Return the populated book (no need to query again)
+        return populatedBook
       } catch (error) {
         throw new GraphQLError('Adding book failed', {
           extensions: {
@@ -147,7 +157,7 @@ const resolvers = {
 
   Subscription: {
     bookAdded: {
-      subscribe: () => pubsub.asyncIterableIterator('BOOK_ADDED'),
+      subscribe: () => pubsub.asyncIterableIterator(['BOOK_ADDED']),
     },
   },
 }

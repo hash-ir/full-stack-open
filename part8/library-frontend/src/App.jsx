@@ -3,8 +3,19 @@ import Authors from './components/Authors'
 import Books from './components/Books'
 import NewBook from './components/NewBook'
 import Recommendations from './components/Recommendations'
-import { useApolloClient, useMutation, useQuery } from '@apollo/client'
-import { ALL_AUTHORS, ALL_BOOKS, CREATE_BOOK, EDIT_AUTHOR } from './queries'
+import {
+  useApolloClient,
+  useMutation,
+  useQuery,
+  useSubscription,
+} from '@apollo/client'
+import {
+  ALL_AUTHORS,
+  ALL_BOOKS,
+  BOOK_ADDED,
+  CREATE_BOOK,
+  EDIT_AUTHOR,
+} from './queries'
 import LoginForm from './components/LoginForm'
 
 const App = () => {
@@ -19,6 +30,20 @@ const App = () => {
   })
   const [editAuthor] = useMutation(EDIT_AUTHOR, {
     refetchQueries: [{ query: ALL_AUTHORS }],
+  })
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      if (data && data.data && data.data.bookAdded) {
+        const addedBook = data.data.bookAdded
+        alert(`New book added: ${addedBook.title} by ${addedBook.author.name}`)
+      } else {
+        console.log('Data structure not as expected:', data)
+      }
+    },
+    onError: (error) => {
+      console.error('Subscription error:', error)
+    },
   })
 
   if (authorsLoading || booksLoading) {

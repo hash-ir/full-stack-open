@@ -12,10 +12,11 @@ const { WebSocketServer } = require('ws')
 const { useServer } = require('graphql-ws/use/ws')
 const User = require('./models/user')
 const jwt = require('jsonwebtoken')
-const typeDefs = require('./schema')
-const resolvers = require('./resolvers')
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
+
+const typeDefs = require('./schema')
+const resolvers = require('./resolvers')
 
 const url = process.env.MONGODB_URI
 console.log('connecting to', url)
@@ -79,9 +80,10 @@ const start = async () => {
 
   const PORT = 4000
 
-  httpServer.listen(PORT, () =>
-    console.log(`Server is now running at http://localhost:${PORT}`)
-  )
+  httpServer.listen(PORT, () => {
+    console.log(`Server ready at http://localhost:${PORT}`)
+    console.log(`Subscription endpoint ready at ws://localhost:${PORT}`)
+  })
 }
 
 start()
