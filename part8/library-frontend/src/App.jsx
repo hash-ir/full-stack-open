@@ -32,11 +32,29 @@ const App = () => {
     refetchQueries: [{ query: ALL_AUTHORS }],
   })
 
+  const updateCache = (cache, query, addedBook) => {
+    // helper that is used to eliminate saving same person twice
+    const uniqByTitle = (a) => {
+      let seen = new Set()
+      return a.filter((item) => {
+        let k = item.title
+        return seen.has(k) ? false : seen.add(k)
+      })
+    }
+
+    cache.updateQuery(query, ({ allBooks }) => {
+      return {
+        allBooks: uniqByTitle(allBooks.concat(addedBook)),
+      }
+    })
+  }
+
   useSubscription(BOOK_ADDED, {
-    onData: ({ data }) => {
+    onData: ({ data, client }) => {
       if (data && data.data && data.data.bookAdded) {
         const addedBook = data.data.bookAdded
         alert(`New book added: ${addedBook.title} by ${addedBook.author.name}`)
+        updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
       } else {
         console.log('Data structure not as expected:', data)
       }
