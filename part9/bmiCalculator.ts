@@ -18,8 +18,22 @@ const calculateBmi = (height: number, weight: number): string => {
   }
 };
 
+const bmiArgs = process.argv.slice(2);
+
+if (bmiArgs.length !== 2) {
+  console.error(
+    `Expected exactly 2 number arguments (height (cm), width (kg)). Found ${
+      process.argv.length - 2
+    }`
+  );
+  process.exit(1);
+}
+
+const height: number = Number(process.argv[2]);
+const weight: number = Number(process.argv[3]);
+
 try {
-  console.log(calculateBmi(180, 74));
+  console.log(calculateBmi(height, weight));
 } catch (error: unknown) {
   let errorMessage = "Something went wrong: ";
 

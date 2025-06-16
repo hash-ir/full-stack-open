@@ -33,15 +33,36 @@ const calculateExercises = (
   }
 
   return {
-    periodLength: 7,
+    periodLength: dailyHours.length,
     trainingDays: dailyHours.filter((n) => n !== 0).length,
     target: target,
-    average: total / 7,
+    average: total / dailyHours.length,
     success: success,
     rating: rating,
     ratingDescription: ratingDesc,
   };
 };
 
-const feedback = calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2);
-console.log(feedback)
+const exerciseArgs = process.argv.slice(2);
+
+if (exerciseArgs.length < 2) {
+  console.error(
+    `Expected at least 2 number arguments (daily hours and target). Found ${exerciseArgs.length}`
+  );
+  process.exit(1);
+}
+
+const numbers = exerciseArgs.map((arg, index) => {
+  const num = Number(arg);
+  if (isNaN(num)) {
+    console.error(`Argument ${index + 1} is not a valid number: ${arg}`);
+    process.exit(1);
+  }
+  return num;
+});
+
+const dailyHours = numbers.slice(0, numbers.length - 1);
+const target = numbers[numbers.length - 1];
+
+const feedback = calculateExercises(dailyHours, target);
+console.log(feedback);
